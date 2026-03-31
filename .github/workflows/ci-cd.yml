@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    name: Validate Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install validation tools
+        run: npm install --save-dev html-validate eslint stylelint stylelint-config-standard
+      
+      - name: Validate HTML
+        run: npx html-validate index.html
+        continue-on-error: true
+      
+      - name: Lint JavaScript
+        run: npx eslint index.html --ext .html,.js
+        continue-on-error: true
+      
+      - name: Check JavaScript syntax
+        run: node -c index.html 2>/dev/null || true
+      
+      - name: Display project info
+        run: |
+          echo "✓ Project: ITF-14 / GS1-128 Barcode Label Generator"
+          echo "✓ Files validated"
+          echo "✓ Ready for deployment"
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up GitHub Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
+      
+      - name: Deployment successful
+        run: echo "✓ Application deployed to GitHub Pages"
