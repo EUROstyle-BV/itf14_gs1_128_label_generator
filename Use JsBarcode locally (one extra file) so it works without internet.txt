@@ -1,0 +1,41 @@
+https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/
+JsBarcode.all.min.js59 KB✅ Production — same functionality, just compressed
+Click JsBarcode.all.min.js → you'll see the raw code in the browser → then Ctrl+S (or right-click → Save as) to save it. Make sure the filename stays exactly JsBarcode.all.min.js so it matches the src attribute you'll put in index.html.
+
+The current version has no offline mode. If I  will sell it, I would like bundling JsBarcode locally (one extra file) so it works without internet — buyers in warehouse/factory environments will expect that. 
+How to do it?
+
+19:00
+The fix is straightforward — one extra file, one line change in index.html.
+
+Step 1: Download JsBarcode
+
+Go to this URL in your browser and save the file as JsBarcode.all.min.js in the same folder as index.html:
+
+https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js
+(Right-click → Save as, or just let the browser download it.)
+
+Step 2: Change one line in index.html
+
+Find this line near the bottom:
+
+html
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+Replace it with:
+
+html
+<script src="JsBarcode.all.min.js"></script>
+```
+
+**That's it.** Your file structure becomes:
+```
+label-generator/
+├── index.html
+└── JsBarcode.all.min.js
+Zip those two files together when selling. The Google Fonts (Archivo Black, IBM Plex Mono) still load from the internet, but those only affect visual polish — the barcode logic works fully offline without them, falling back to the browser's default monospace font. If you want 100% offline including fonts, that's a bigger step (embedding ~200 KB of font data as base64 inside the HTML), but for warehouse use the current fonts are a nice-to-have, not a functional requirement.
+
+
+
+the file contents. Now just save it:
+Ctrl+S (or Cmd+S on Mac) → your browser's Save dialog appears → save it as JsBarcode.all.min.js in the same folder as your index.html.
+That's it. The gibberish-looking code is normal — it's just minified JavaScript (spaces and formatting stripped out to save size). It works exactly the same as the readable version.
