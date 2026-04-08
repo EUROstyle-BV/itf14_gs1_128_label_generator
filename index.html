@@ -525,7 +525,7 @@
           <div class="grid-cell-value" id="val-batch">—</div>
         </div>
         <div class="grid-cell">
-          <div class="grid-cell-label">THT:</div>
+          <div class="grid-cell-label" id="label-tht">THT:</div>
           <div class="grid-cell-value" id="val-tht">—</div>
         </div>
       </div>
@@ -660,7 +660,14 @@
 
       // — Batch, THT, EAN, Art.nr. —
       document.getElementById('val-batch').textContent = batch || '—';
-      document.getElementById('val-tht').textContent   = thtDate ? dateToDDMMYYYY(thtDate) : '—';
+      const thtLabelEl = document.getElementById('label-tht');
+      if (thtDate) {
+        thtLabelEl.textContent = 'THT:';
+        document.getElementById('val-tht').textContent = dateToDDMMYYYY(thtDate);
+      } else {
+        thtLabelEl.textContent = 'PROD:';
+        document.getElementById('val-tht').textContent = prodDate ? dateToDDMMYYYY(prodDate) : '—';
+      }
       document.getElementById('val-ean').textContent   = ean || '—';
       document.getElementById('val-artnr').textContent = artnr || '—';
 
@@ -793,24 +800,27 @@
               display: block !important;
               width: 105mm !important;
               height: 148mm !important;
-              min-height: unset !important;
-              padding: 0 !important;
+              padding: 1cm !important;
               overflow: hidden !important;
             }
-            /* Compact layout to fit all content in 148mm */
-            #zone-logo        { padding: 4px 0 !important; min-height: 40px !important; }
-            #logo-img         { max-height: 40px !important; }
-            #zone-product     { padding: 4px 12px !important; }
-            #product-name     { font-size: 30px !important; }
-            #zone-inhoud      { padding: 3px 12px !important; }
+            #label {
+              width: 85mm !important;
+              height: 128mm !important;
+            }
+            /* Compact layout to fit all content in 128mm */
+            #zone-logo        { padding: 3px 0 !important; min-height: 30px !important; }
+            #logo-img         { max-height: 30px !important; }
+            #zone-product     { padding: 3px 10px !important; }
+            #product-name     { font-size: 24px !important; }
+            #zone-inhoud      { padding: 2px 10px !important; }
             #inhoud-label,
-            #inhoud-value     { font-size: 18px !important; }
-            .grid-cell        { padding: 3px 8px 3px !important; }
-            .grid-cell-value  { font-size: 16px !important; }
-            #zone-gs1128      { padding: 4px 8px 2px !important; }
-            #zone-itf14       { padding: 4px 8px 2px !important; }
+            #inhoud-value     { font-size: 14px !important; }
+            .grid-cell        { padding: 2px 6px 2px !important; }
+            .grid-cell-value  { font-size: 14px !important; }
+            #zone-gs1128      { padding: 3px 6px 1px !important; }
+            #zone-itf14       { padding: 3px 6px 1px !important; }
             #gs1128-container svg,
-            #itf14-container svg { max-height: 28mm !important; }
+            #itf14-container svg { max-height: 22mm !important; }
           }
         `;
       } else {

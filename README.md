@@ -36,7 +36,7 @@ This application generates **EUROstyle / Vitalstyle outer-carton shipping labels
    - Box Contents Description
    - Batch Number
    - Production Date
-   - Best-Before Date (THT)
+   - Best-Before Date (THT) — displays as "THT:" on label if present; if empty, shows "PROD:" with production date
    - Paper Size (A4 or A6)
 
 3. **View the label** (right panel):
@@ -115,7 +115,7 @@ itf14_gs1_128_label_generator/
 ## Print Settings
 
 - **A4 Layout:** Label is centered on an A4 page (210mm × 297mm)
-- **A6 Layout:** Label fills a 105mm × 148mm page
+- **A6 Layout:** Label (85mm × 128mm) centered with 1cm margins on a 105mm × 148mm page
 - **Margins:** Set to 0mm for best results
 - **Scale:** 100% (do not scale in print dialog)
 

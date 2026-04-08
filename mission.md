@@ -42,7 +42,7 @@ The target output is a faithful reproduction of the **EUROstyle / Vitalstyle out
 | Box contents description | Inhoud omschrijving | `<input type="text">` | E.g. `500 ml`; combined with Quantity on label as `{qty} x {description}` |
 | Batch number | Batch | `<input type="text" maxlength="20">` | Alphanumeric; GS1-128 AI `(10)`; shown in data grid |
 | Production date | Productiedatum | `<input type="date">` | Formatted `YYMMDD` for GS1-128 AI `(11)`; NOT shown in data grid, only encoded in barcode |
-| Best-before date (THT) | THT datum | `<input type="date">` | Formatted `DD-MM-YYYY` on label; `YYMMDD` in GS1-128 AI `(15)` |
+| Best-before date (THT) | THT datum | `<input type="date">` | Formatted `DD-MM-YYYY` on label as "THT:" if present; if empty, shows "PROD:" with production date; `YYMMDD` in GS1-128 AI `(15)` if present |
 | Paper size | Papierformaat | `<select>` | `a4` = label centered on A4 sheet; `a6` = 105×148mm page |
 
 All fields trigger an **immediate live update** of the right-hand label preview via `input` / `change` event listeners — no submit button.
@@ -58,7 +58,7 @@ A **"Label afdrukken"** button triggers `window.print()`. Before printing, a `<s
 | Paper size | `@page` rule | Layout |
 |---|---|---|
 | A4 (default) | `size: A4 portrait; margin: 0` | `#preview-panel` is 210mm × 297mm; label (105×148mm) is centered via flexbox — ensures quiet zones are never clipped |
-| A6 | `size: 105mm 148mm; margin: 0` | Label fills the page; compact CSS overrides reduce paddings/font sizes to fit all content in 148mm |
+| A6 | `size: 105mm 148mm; margin: 0` | Label (85mm × 128mm) centered with 1cm margins on 105mm × 148mm page; compact CSS overrides reduce paddings/font sizes to fit all content in 128mm |
 
 After printing the `afterprint` event clears the dynamic style.
 
@@ -176,7 +176,7 @@ Print target: **105 mm × 148 mm** (A6 portrait). Label background: pure white `
 │   Inhoud:                    15 x 500 ml       │  ← large text, two columns
 │                                                │
 ├───────────────────────┬────────────────────────┤
-│  Batch:               │  THT:                  │
+│  Batch:               │  THT: / PROD:*         │
 │                       │                        │
 │  06022629             │  31-03-2028             │
 │                       │                        │
@@ -201,6 +201,8 @@ Print target: **105 mm × 148 mm** (A6 portrait). Label background: pure white `
 │              18711731033609                    │  ← human-readable centered
 │                                                │
 └────────────────────────────────────────────────┘
+
+\* If THT date is empty, displays "PROD:" with production date instead.
 ```
 
 ### Zone-by-zone CSS Notes
