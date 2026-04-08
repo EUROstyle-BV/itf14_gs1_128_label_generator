@@ -61,12 +61,42 @@ const variant = Math.random() > 0.5 ? 'A' : 'B';
 
 | Platform | Setup | Prijs | Notes |
 |---|---|---|---|
-| **GitHub Pages** | Fork + enable pages | Free | Static host, perfekt voor static HTML |
+| **GitHub Pages** | Enable pages from main branch root | Free | Static host, perfect for static HTML |
 | **Netlify** | Drag-drop index.html | Free | Fast CDN, SSL included |
-| **Vercel** | Git deploy | Free | Built voor modern web, overkill maar snel |
+| **Vercel** | Git deploy | Free | Built for modern web, overkill maar snel |
 | **EUROstyle VPS** | SCP upload | Your server | Full controle, moet je zelf HTTPS configuren |
 
-**Aanbeveling:** Netlify of Vercel voor snelheid + zekerheid + SSL.
+**Aanbeveling:** GitHub Pages als je snelle, eenvoudige public hosting wilt; Netlify/Vercel als je extra CDN of build pipelines nodig hebt.
+
+---
+
+## GitHub Pages Setup
+
+Voor deze repo is GitHub Pages de eenvoudigste manier om `index.html` te publiceren.
+
+1. Zorg dat `index.html` in de root van de repository staat.
+2. Ga naar je repository op GitHub.
+3. Open `Settings` → `Pages`.
+4. Stel de source in op branch `main` en folder `/ (root)`.
+5. Klik op `Save`.
+6. Wacht enkele minuten totdat GitHub Pages de site heeft gepubliceerd.
+
+Je site wordt dan bereikbaar op:
+
+```
+https://<gebruikersnaam>.github.io/<repositorynaam>/
+```
+
+### Custom domain (optioneel)
+
+Als je een eigen domein wilt gebruiken, kun je:
+
+- een `CNAME` bestand toevoegen met je domeinnaam, of
+- de custom domain sectie in GitHub Pages settings gebruiken.
+
+Voor een custom subdomein zoals `labels.eurostyle.nl` voer je de DNS records in je domeinbeheer in en voeg je dezelfde domeinnaam toe in GitHub Pages settings.
+
+---
 
 ---
 
