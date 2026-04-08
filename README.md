@@ -17,8 +17,7 @@ This application generates **EUROstyle / Vitalstyle outer-carton shipping labels
 ✨ **Professional barcode rendering** — GS1-compliant barcodes using bwip-js  
 ✨ **Responsive panels** — input form on left, live preview on right  
 ✨ **Print-optimized** — A4 and A6 paper size support  
-✨ **Save/Load** — export label data as JSON, reload anytime  
-
+✨ **Save/Load** — export label data as JSON, reload anytime  - **Public hosting ready** — open deployment at `labels.eurostyle.nl` (no auth required)
 ## Getting Started
 
 1. **Open the application:**
@@ -148,6 +147,24 @@ The application is designed for ease of use without requiring coding. However, y
 - **Default values:** Modify the initial form values in the JavaScript section
 - **Styling:** Adjust CSS variables in the `<style>` tag
 - **Barcode libraries:** Change CDN URLs for bwip-js if needed
+
+## Deployment
+
+This application is designed for **open public hosting** on a custom domain like `labels.eurostyle.nl`.
+
+**Design philosophy:**
+- No authentication required — the tool adds value through EUROstyle branding
+- No server-side data storage — all processing happens in the browser
+- Minimal overhead — single HTML file, no dependencies, no build step
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for setup and hosting recommendations.
+
+## Privacy & Security
+
+- ✅ All processing happens in your browser
+- ✅ No data is stored on any server
+- ✅ No cookies or persistent tracking
+- ✅ Safe for public deployment
 
 ## Troubleshooting
 

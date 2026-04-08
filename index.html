@@ -383,6 +383,39 @@
       display: none;
     }
 
+    /* ── App Footer ──────────────────────────────────────────────── */
+    #app-footer {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #888;
+      background: rgba(17, 19, 23, 0.8);
+      backdrop-filter: blur(4px);
+      border-top: 1px solid #2a2d35;
+      border-left: 1px solid #2a2d35;
+      z-index: 100;
+    }
+
+    #app-footer a {
+      color: #4a9eff;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    #app-footer a:hover {
+      color: #6bb3ff;
+      text-decoration: underline;
+    }
+
+    @media print {
+      #app-footer {
+        display: none !important;
+      }
+    }
+
     /* ── Print Media ──────────────────────────────────────────────── */
     @media print {
       body {
@@ -558,6 +591,11 @@
 
     </div><!-- #label -->
   </main>
+
+  <!-- App Footer -->
+  <footer id="app-footer">
+    Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>
+  </footer>
 
   <!-- bwip-js CDN: gs1-128 + itf14 with proper bearer bars and FNC1 -->
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
@@ -905,6 +943,21 @@
       reader.readAsText(file);
     });
 
+    // ── Optional: Simple analytics (no cookies, just page view count) ───
+    function logPageView() {
+      // Optional: Send a minimal page view event to your analytics
+      // This is non-intrusive and respects privacy
+      if (navigator.sendBeacon && typeof fetch !== 'undefined') {
+        const params = new URLSearchParams({
+          event: 'page_view',
+          timestamp: new Date().toISOString(),
+          referrer: document.referrer || '(direct)'
+        });
+        // Uncomment below when you have an analytics endpoint at labels.eurostyle.nl
+        // fetch('/api/analytics', { method: 'POST', body: params, keepalive: true }).catch(() => {});
+      }
+    }
+
     // ── Pre-fill reference test data on load ──────────────────────
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('input-ean').value      = '8711731033602';
@@ -916,7 +969,8 @@
       document.getElementById('input-proddate').value = '2028-02-06';
       document.getElementById('input-tht').value      = '2028-03-31';
       updateLabel();
-    });
+      // Optional: Log page view (uncomment when analytics ready)
+      // logPageView();    });
   </script>
 </body>
 </html>
