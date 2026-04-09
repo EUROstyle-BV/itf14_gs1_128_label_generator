@@ -96,7 +96,6 @@ Use these values to verify barcode rendering:
 ```
 itf14_gs1_128_label_generator/
 ├── index.html                  # Main application (single file)
-├── JsBarcode.all.min.js        # Local barcode library (optional CDN fallback)
 ├── .gitignore                  # Git ignore configuration
 ├── README.md                   # This file
 ├── mission.md                  # Detailed project specification
