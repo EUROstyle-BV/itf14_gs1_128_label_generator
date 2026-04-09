@@ -22,3 +22,9 @@ Always read `mission.md` first before any coding task.
 
 \- Verify: `gs1CheckDigit("1871173103360") === 9`
 
+\- Brand logos live in `images/` folder: `Logo_ECOstyle_black.jpg`, `Vitalstyle_logo_zw.jpg`, `Logo_AZstyle_black.jpg`
+
+\- Brand is detected from URL path (`/ecostyle`, `/vitalstyle`, `/azstyle`) via GitHub Pages SPA routing (404.html → `?/brandname` query param)
+
+\- SPA `spaPath` value has NO leading slash (`'vitalstyle'`, not `'/vitalstyle'`) — check with `includes('vitalstyle')` not `includes('/vitalstyle')`
+

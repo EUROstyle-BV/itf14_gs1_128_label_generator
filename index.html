@@ -626,12 +626,13 @@
       const searchParams = new URLSearchParams(window.location.search);
       
       // Check for SPA routing via query parameter (GitHub Pages 404.html redirect)
+      // spaPath value is 'vitalstyle' (no leading slash) from ?/vitalstyle query string
       const spaPath = searchParams.get('/');
       if (spaPath) {
         const spaPathLower = spaPath.toLowerCase();
-        if (spaPathLower.includes('/ecostyle')) return 'ecostyle';
-        if (spaPathLower.includes('/vitalstyle')) return 'vitalstyle';
-        if (spaPathLower.includes('/azstyle')) return 'azstyle';
+        if (spaPathLower.includes('ecostyle')) return 'ecostyle';
+        if (spaPathLower.includes('vitalstyle')) return 'vitalstyle';
+        if (spaPathLower.includes('azstyle')) return 'azstyle';
       }
       
       // Check direct pathname
@@ -649,8 +650,9 @@
       const searchParams = new URLSearchParams(window.location.search);
       const spaPath = searchParams.get('/');
       if (spaPath && window.history.replaceState) {
-        const cleanPath = spaPath.startsWith('/') ? spaPath : '/' + spaPath;
-        window.history.replaceState(null, null, cleanPath);
+        const base = window.location.pathname.replace(/\/$/, ''); // e.g. '/itf14_gs1_128_label_generator'
+        const cleanSpa = spaPath.startsWith('/') ? spaPath : '/' + spaPath; // '/vitalstyle'
+        window.history.replaceState(null, null, base + cleanSpa);
       }
       
       // Update page title
