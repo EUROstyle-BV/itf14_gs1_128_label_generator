@@ -1,30 +1,38 @@
-\# ITF-14 / GS1-128 Label Generator
-
-
+# ITF-14 / GS1-128 Label Generator
 
 Always read `mission.md` first before any coding task.
 
+## Key facts
 
+- Output: single `index.html`, no build tools, no npm
+- Barcodes: bwip-js CDN (ITF14 + CODE128 formats)
+- GS1-128 top, ITF-14 bottom (bearer frame)
+- PI=0 for GS1-128 AI(02), PI=1 for ITF-14
+- Default test data: EAN `8711731033602`, batch `06022629`, THT `2028-03-31`
+- If THT date is empty, label displays "PROD:" with production date instead of "THT:"
+- Verify: `gs1CheckDigit("1871173103360") === 9`
 
-\## Key facts
+## Brand variants
 
-\- Output: single `index.html`, no build tools, no npm
+- Known brands: `ecostyle`, `vitalstyle`, `azstyle`
+- Default (root URL): `eurostyle`
+- Logo images live in `images/` folder:
+  - `images/Logo_ECOstyle_black.jpg` → ecostyle
+  - `images/Vitalstyle_logo_zw.jpg` → vitalstyle
+  - `images/Logo_AZstyle_black.jpg` → azstyle
+- Brand names in header: `ECOSTYLE`, `VITALstyle`, `AZ STYLE`
 
-\- Barcodes: bwip-js CDN (ITF14 + CODE128 formats)
+## Brand/URL routing
 
-\- GS1-128 top, ITF-14 bottom (bearer frame)
+- GitHub Pages serves `index.html` for all paths via `404.html` SPA redirect
+- `404.html` converts `/vitalstyle` → `/?/vitalstyle` (query param key is `/`, value is `vitalstyle`)
+- **CRITICAL:** `spaPath` value has NO leading slash — always check with `includes('brandname')`, not `includes('/brandname')`
+- `getBrandFromURL()` searches the full URL string (`pathname + search + hash`) to catch all formats
+- Unknown/invalid sub-paths (not matching any brand) → show `show404()` page, not default brand
+- 404 page "Ga naar de generator" button links to `/itf14_gs1_128_label_generator/ecostyle`
 
-\- PI=0 for GS1-128 AI(02), PI=1 for ITF-14
+## Live URLs
 
-\- Default test data: EAN `8711731033602`, batch `06022629`, THT `2028-03-31`
-
-\- If THT date is empty, label displays "PROD:" with production date instead of "THT:"
-
-\- Verify: `gs1CheckDigit("1871173103360") === 9`
-
-\- Brand logos live in `images/` folder: `Logo_ECOstyle_black.jpg`, `Vitalstyle_logo_zw.jpg`, `Logo_AZstyle_black.jpg`
-
-\- Brand is detected from URL path (`/ecostyle`, `/vitalstyle`, `/azstyle`) via GitHub Pages SPA routing (404.html → `?/brandname` query param)
-
-\- SPA `spaPath` value has NO leading slash (`'vitalstyle'`, not `'/vitalstyle'`) — check with `includes('vitalstyle')` not `includes('/vitalstyle')`
-
+- ECOstyle: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/ecostyle`
+- VITALstyle: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/vitalstyle`
+- AZ Style: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/azstyle`

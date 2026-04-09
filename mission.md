@@ -295,8 +295,13 @@ The A4-centered print layout ensures the GS1-128 quiet zones (left/right margins
 
 ```
 itf14-gs1128-generator/
-├── index.html          ← single deliverable (all CSS + JS inline)
-├── mission.md          ← this file
+├── index.html                        ← single deliverable (all CSS + JS inline)
+├── 404.html                          ← GitHub Pages SPA routing redirect
+├── mission.md                        ← this file
+├── images/
+│   ├── Logo_ECOstyle_black.jpg       ← default logo for /ecostyle
+│   ├── Vitalstyle_logo_zw.jpg        ← default logo for /vitalstyle
+│   └── Logo_AZstyle_black.jpg        ← default logo for /azstyle
 └── reference/
     └── omdoos_ZomerRust_Spray_500ml_06022629.pdf
 ```
@@ -330,6 +335,20 @@ JSON export/import van alle veldwaarden incl. logo (base64) en papierformaat. Be
 Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóór `window.print()`:
 - A4: bestaande CSS (label gecentreerd op A4).
 - A6: `@page { size: 105mm 148mm }` + compacte CSS-overrides (kleinere paddings, fonts, max-height op barcodes) om alle content in 148mm te laten passen.
+
+### Stap 7 — Brand varianten (ECOstyle, VITALstyle, AZstyle)
+- URL-gebaseerde brand detectie: `/ecostyle`, `/vitalstyle`, `/azstyle`
+- Elk merk heeft eigen logo-afbeelding in `images/` map en eigen header-tekst
+- GitHub Pages SPA routing via `404.html` (spa-github-pages patroon)
+- Brand-logo wordt automatisch getoond als default; gebruiker kan overschrijven met eigen upload
+
+### Stap 8 — SPA routing bugfix (brand detectie)
+- **Probleem:** `404.html` redirect produceert `/?/vitalstyle` waarbij `spaPath` = `'vitalstyle'` (geen leading slash). Check op `'/vitalstyle'` miste altijd → fallback naar EUROSTYLE.
+- **Oplossing:** `getBrandFromURL()` doorzoekt de volledige URL-string (`pathname + search + hash`) met `includes('brandname')`.
+
+### Stap 9 — 404 pagina voor ongeldige URLs
+- Onbekende sub-paden (bijv. `/hsdgkjshghdhsdk`) tonen een nette "Pagina niet gevonden" pagina i.p.v. stilletjes de default brand te laden.
+- Knop "Ga naar de generator" linkt naar `/ecostyle` als standaard.
 
 ---
 
