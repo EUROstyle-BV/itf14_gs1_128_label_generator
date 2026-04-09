@@ -629,18 +629,13 @@
       if (fullUrl.includes('vitalstyle')) return 'vitalstyle';
       if (fullUrl.includes('azstyle')) return 'azstyle';
 
-      // If there is a sub-path or query param that doesn't match a known brand,
-      // it's an unknown/wrong URL — return null to trigger 404 page.
-      const knownBase = 'itf14_gs1_128_label_generator';
-      const search = window.location.search.toLowerCase();
-      const pathname = window.location.pathname.toLowerCase();
-      // spaPath present means 404.html redirected an unknown sub-path
-      if (search.includes('?/') || (new URLSearchParams(window.location.search)).get('/') !== null) {
+      // If 404.html redirected an unknown sub-path → show 404 page
+      if ((new URLSearchParams(window.location.search)).get('/') !== null) {
         return null;
       }
-      // Direct sub-path beyond the repo root
-      const afterBase = pathname.split(knownBase)[1] || '';
-      if (afterBase.replace(/^\/+/, '') !== '') {
+      // Direct unknown path beyond root
+      const pathname = window.location.pathname.replace(/\/$/, '');
+      if (pathname !== '' && pathname !== '/') {
         return null;
       }
       return 'eurostyle'; // default (root URL)
@@ -650,13 +645,12 @@
     function applyBrandSettings(brand) {
       const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
       
-      // Clean up URL for SPA routing (remove query params from 404.html redirect)
+      // Clean up URL for SPA routing (remove ?/brand query param, restore clean /brand path)
       const searchParams = new URLSearchParams(window.location.search);
       const spaPath = searchParams.get('/');
       if (spaPath && window.history.replaceState) {
-        const base = window.location.pathname.replace(/\/$/, ''); // e.g. '/itf14_gs1_128_label_generator'
         const cleanSpa = spaPath.startsWith('/') ? spaPath : '/' + spaPath; // '/vitalstyle'
-        window.history.replaceState(null, null, base + cleanSpa);
+        window.history.replaceState(null, null, cleanSpa);
       }
       
       // Update page title
@@ -1059,7 +1053,7 @@
           <h1 style="font-size:2em;margin:0 0 12px;">Pagina niet gevonden</h1>
           <p style="color:#666;margin:0 0 24px;">De URL die je hebt ingevoerd bestaat niet.</p>
           <p style="font-size:13px;color:#999;margin:0 0 32px;">Controleer of de link klopt.</p>
-          <a href="/itf14_gs1_128_label_generator/ecostyle" style="padding:10px 24px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-size:14px;">Ga naar de generator</a>
+          <a href="/ecostyle" style="padding:10px 24px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-size:14px;">Ga naar de generator</a>
         </div>`;
     }
 

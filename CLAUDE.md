@@ -33,6 +33,9 @@ Always read `mission.md` first before any coding task.
 
 ## Live URLs
 
-- ECOstyle: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/ecostyle`
-- VITALstyle: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/vitalstyle`
-- AZ Style: `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/azstyle`
+- ECOstyle: `https://labels.eurostyle.nl/ecostyle`
+- VITALstyle: `https://labels.eurostyle.nl/vitalstyle`
+- AZ Style: `https://labels.eurostyle.nl/azstyle`
+
+Custom domain: `labels.eurostyle.nl` (CNAME → `eurostyle-bv.github.io`)
+`404.html` uses `pathSegmentsToKeep = 0` (no repo-name prefix with custom domain)
