@@ -609,7 +609,7 @@
         footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
       },
       vitalstyle: {
-        name: 'VITALSTYLE',
+        name: 'VITALstyle',
         logoSrc: 'images/Vitalstyle_logo_zw.jpg',
         footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
       },
@@ -620,25 +620,14 @@
       }
     };
 
-    // ── Detect brand from URL path ────────────────────────────────
+    // ── Detect brand from URL ─────────────────────────────────────
     function getBrandFromURL() {
-      const path = window.location.pathname.toLowerCase();
-      const searchParams = new URLSearchParams(window.location.search);
-      
-      // Check for SPA routing via query parameter (GitHub Pages 404.html redirect)
-      // spaPath value is 'vitalstyle' (no leading slash) from ?/vitalstyle query string
-      const spaPath = searchParams.get('/');
-      if (spaPath) {
-        const spaPathLower = spaPath.toLowerCase();
-        if (spaPathLower.includes('ecostyle')) return 'ecostyle';
-        if (spaPathLower.includes('vitalstyle')) return 'vitalstyle';
-        if (spaPathLower.includes('azstyle')) return 'azstyle';
-      }
-      
-      // Check direct pathname
-      if (path.includes('/ecostyle')) return 'ecostyle';
-      if (path.includes('/vitalstyle')) return 'vitalstyle';
-      if (path.includes('/azstyle')) return 'azstyle';
+      // Search the full URL (pathname + search + hash) so we catch all
+      // GitHub Pages SPA routing formats: /vitalstyle, /?vitalstyle, /?/vitalstyle
+      const fullUrl = (window.location.pathname + window.location.search + window.location.hash).toLowerCase();
+      if (fullUrl.includes('ecostyle')) return 'ecostyle';
+      if (fullUrl.includes('vitalstyle')) return 'vitalstyle';
+      if (fullUrl.includes('azstyle')) return 'azstyle';
       return 'eurostyle'; // default
     }
 
