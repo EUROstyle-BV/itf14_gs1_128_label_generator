@@ -605,17 +605,17 @@
     const BRAND_CONFIG = {
       ecostyle: {
         name: 'ECOSTYLE',
-        logoText: 'ECOSTYLE',
+        logoSrc: 'images/Logo_ECOstyle_black.jpg',
         footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
       },
       vitalstyle: {
         name: 'VITALSTYLE',
-        logoText: 'VITALSTYLE',
+        logoSrc: 'images/Vitalstyle_logo_zw.jpg',
         footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
       },
       azstyle: {
         name: 'AZ STYLE',
-        logoText: 'AZ STYLE',
+        logoSrc: 'images/Logo_AZstyle_black.jpg',
         footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
       }
     };
@@ -662,15 +662,21 @@
       // Update footer
       document.getElementById('app-footer').innerHTML = config.footer;
       
-      // Set default logo text
+      // Set default logo image
       const logoPlaceholder = document.getElementById('logo-placeholder');
       const logoImg = document.getElementById('logo-img');
-      
+
       // Only set default logo if no custom logo is uploaded
       if (logoImg.style.display === 'none' || !logoImg.src || logoImg.src.includes('data:') === false) {
-        logoPlaceholder.textContent = config.logoText;
-        logoPlaceholder.style.display = 'block';
-        logoImg.style.display = 'none';
+        if (config.logoSrc) {
+          logoImg.src = config.logoSrc;
+          logoImg.style.display = 'block';
+          logoPlaceholder.style.display = 'none';
+        } else {
+          logoPlaceholder.textContent = config.name;
+          logoPlaceholder.style.display = 'block';
+          logoImg.style.display = 'none';
+        }
       }
     }
     function gs1CheckDigit(digits13) {
