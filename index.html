@@ -623,6 +623,18 @@
     // ── Detect brand from URL path ────────────────────────────────
     function getBrandFromURL() {
       const path = window.location.pathname.toLowerCase();
+      const searchParams = new URLSearchParams(window.location.search);
+      
+      // Check for SPA routing via query parameter (GitHub Pages 404.html redirect)
+      const spaPath = searchParams.get('/');
+      if (spaPath) {
+        const spaPathLower = spaPath.toLowerCase();
+        if (spaPathLower.includes('/ecostyle')) return 'ecostyle';
+        if (spaPathLower.includes('/vitalstyle')) return 'vitalstyle';
+        if (spaPathLower.includes('/azstyle')) return 'azstyle';
+      }
+      
+      // Check direct pathname
       if (path.includes('/ecostyle')) return 'ecostyle';
       if (path.includes('/vitalstyle')) return 'vitalstyle';
       if (path.includes('/azstyle')) return 'azstyle';
@@ -632,6 +644,14 @@
     // ── Apply brand settings ──────────────────────────────────────
     function applyBrandSettings(brand) {
       const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
+      
+      // Clean up URL for SPA routing (remove query params from 404.html redirect)
+      const searchParams = new URLSearchParams(window.location.search);
+      const spaPath = searchParams.get('/');
+      if (spaPath && window.history.replaceState) {
+        const cleanPath = spaPath.startsWith('/') ? spaPath : '/' + spaPath;
+        window.history.replaceState(null, null, cleanPath);
+      }
       
       // Update page title
       document.title = `${config.name} Label Generator — ITF-14 / GS1-128`;

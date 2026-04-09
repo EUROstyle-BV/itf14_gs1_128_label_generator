@@ -40,6 +40,8 @@ De applicatie ondersteunt drie brand varianten via URL paths:
 
 **Implementatie:** De applicatie detecteert automatisch de brand op basis van de URL path en past het logo aan in de labels.
 
+**GitHub Pages Setup:** Voor SPA routing op GitHub Pages is een `404.html` bestand toegevoegd dat alle requests naar `index.html` redirect, zodat de JavaScript routing werkt voor de brand URLs.
+
 ---
 
 ## Optional: Analytics (Toekomstig)

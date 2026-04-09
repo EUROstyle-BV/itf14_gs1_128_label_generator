@@ -20,6 +20,16 @@ This application supports three brand variants, each accessible via different UR
 2. **`labels.eurostyle.nl/vitalstyle`** — VITALSTYLE branded labels  
 3. **`labels.eurostyle.nl/AZstyle`** — AZ STYLE branded labels
 
+### GitHub Pages URLs
+
+Voor de huidige GitHub Pages deployment:
+
+1. **`https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/ecostyle`** — ECOSTYLE
+2. **`https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/vitalstyle`** — VITALSTYLE
+3. **`https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/AZstyle`** — AZ STYLE
+
+**Technisch:** Gebruikt SPA routing via `404.html` voor client-side URL handling op GitHub Pages.
+
 ### Features per Variant
 
 - **Custom branding:** Each variant displays its own logo text in the label header
