@@ -30,6 +30,16 @@ Het label generator is nu voorbereidt voor openbare hosting op een eigen domein.
 - ✅ Minimale support overhead
 - ✅ Subtiele "Powered by EUROstyle" footer
 
+### Brand Variants
+
+De applicatie ondersteunt drie brand varianten via URL paths:
+
+1. `labels.eurostyle.nl/ecostyle` — ECOSTYLE logo
+2. `labels.eurostyle.nl/vitalstyle` — VITALSTYLE logo  
+3. `labels.eurostyle.nl/AZstyle` — AZ STYLE logo
+
+**Implementatie:** De applicatie detecteert automatisch de brand op basis van de URL path en past het logo aan in de labels.
+
 ---
 
 ## Optional: Analytics (Toekomstig)

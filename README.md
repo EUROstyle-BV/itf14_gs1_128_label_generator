@@ -10,6 +10,30 @@ This application generates **EUROstyle / Vitalstyle outer-carton shipping labels
 - **Live form-to-preview synchronization** — no refresh needed
 - **Print and export functionality** — save to JSON or print directly
 
+## Brand Variants
+
+This application supports three brand variants, each accessible via different URL paths:
+
+### Available Variants
+
+1. **`labels.eurostyle.nl/ecostyle`** — ECOSTYLE branded labels
+2. **`labels.eurostyle.nl/vitalstyle`** — VITALSTYLE branded labels  
+3. **`labels.eurostyle.nl/AZstyle`** — AZ STYLE branded labels
+
+### Features per Variant
+
+- **Custom branding:** Each variant displays its own logo text in the label header
+- **Consistent functionality:** All variants share the same barcode generation and printing features
+- **Default logos:** Brand logos are automatically set as defaults in the labels
+- **URL-based detection:** The application automatically detects the brand from the URL path
+
+### Usage
+
+Simply navigate to the desired brand URL. The application will automatically:
+- Update the page title to reflect the brand
+- Display the appropriate brand logo in the label
+- Maintain all existing functionality (form input, barcode generation, printing, save/load)
+
 ## Features
 
 ✨ **No dependencies, no build tools** — single `index.html` file  

@@ -601,7 +601,58 @@
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
 
   <script>
-    // ── Utility: GTIN-14 construction ────────────────────────────
+    // ── Brand Configuration ───────────────────────────────────────
+    const BRAND_CONFIG = {
+      ecostyle: {
+        name: 'ECOSTYLE',
+        logoText: 'ECOSTYLE',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      },
+      vitalstyle: {
+        name: 'VITALSTYLE',
+        logoText: 'VITALSTYLE',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      },
+      azstyle: {
+        name: 'AZ STYLE',
+        logoText: 'AZ STYLE',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      }
+    };
+
+    // ── Detect brand from URL path ────────────────────────────────
+    function getBrandFromURL() {
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('/ecostyle')) return 'ecostyle';
+      if (path.includes('/vitalstyle')) return 'vitalstyle';
+      if (path.includes('/azstyle')) return 'azstyle';
+      return 'eurostyle'; // default
+    }
+
+    // ── Apply brand settings ──────────────────────────────────────
+    function applyBrandSettings(brand) {
+      const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
+      
+      // Update page title
+      document.title = `${config.name} Label Generator — ITF-14 / GS1-128`;
+      
+      // Update header
+      document.querySelector('#input-panel header').textContent = `📦 ${config.name} Label Generator`;
+      
+      // Update footer
+      document.getElementById('app-footer').innerHTML = config.footer;
+      
+      // Set default logo text
+      const logoPlaceholder = document.getElementById('logo-placeholder');
+      const logoImg = document.getElementById('logo-img');
+      
+      // Only set default logo if no custom logo is uploaded
+      if (logoImg.style.display === 'none' || !logoImg.src || logoImg.src.includes('data:') === false) {
+        logoPlaceholder.textContent = config.logoText;
+        logoPlaceholder.style.display = 'block';
+        logoImg.style.display = 'none';
+      }
+    }
     function gs1CheckDigit(digits13) {
       // digits13: string of exactly 13 digits (left-to-right)
       // positions 0,2,4,... × 3; positions 1,3,5,... × 1
@@ -803,7 +854,12 @@
     // ── Logo loader ───────────────────────────────────────────────
     document.getElementById('input-logo').addEventListener('change', function(e) {
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) {
+        // No file selected - restore brand logo
+        const brand = getBrandFromURL();
+        applyBrandSettings(brand);
+        return;
+      }
       const errLogo = document.getElementById('err-logo');
       errLogo.style.display = file.size > 2 * 1024 * 1024 ? 'block' : 'none';
       const reader = new FileReader();
@@ -887,6 +943,7 @@
         tht:       document.getElementById('input-tht').value,
         papersize: document.getElementById('paper-size').value,
         logo:      logoData,
+        brand:     getBrandFromURL(), // Save current brand
       };
 
       // Filename: product name + batch number, spaces → underscores, strip invalid chars
@@ -926,13 +983,17 @@
           document.getElementById('input-tht').value      = d.tht       || '';
           if (d.papersize) document.getElementById('paper-size').value = d.papersize;
 
-          // Restore logo if saved
+          // Restore logo if saved, otherwise apply brand logo
           if (d.logo && d.logo.startsWith('data:')) {
             const img = document.getElementById('logo-img');
             const ph  = document.getElementById('logo-placeholder');
             img.src           = d.logo;
             img.style.display = 'block';
             ph.style.display  = 'none';
+          } else {
+            // Apply brand logo (either from saved data or current URL)
+            const brand = d.brand || getBrandFromURL();
+            applyBrandSettings(brand);
           }
 
           updateLabel();
@@ -960,6 +1021,10 @@
 
     // ── Pre-fill reference test data on load ──────────────────────
     document.addEventListener('DOMContentLoaded', () => {
+      // Apply brand settings based on URL
+      const brand = getBrandFromURL();
+      applyBrandSettings(brand);
+      
       document.getElementById('input-ean').value      = '8711731033602';
       document.getElementById('input-product').value  = 'ZomerRust spray 500 ml';
       document.getElementById('input-artnr').value    = '1103360';
