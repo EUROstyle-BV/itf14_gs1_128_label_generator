@@ -628,7 +628,22 @@
       if (fullUrl.includes('ecostyle')) return 'ecostyle';
       if (fullUrl.includes('vitalstyle')) return 'vitalstyle';
       if (fullUrl.includes('azstyle')) return 'azstyle';
-      return 'eurostyle'; // default
+
+      // If there is a sub-path or query param that doesn't match a known brand,
+      // it's an unknown/wrong URL — return null to trigger 404 page.
+      const knownBase = 'itf14_gs1_128_label_generator';
+      const search = window.location.search.toLowerCase();
+      const pathname = window.location.pathname.toLowerCase();
+      // spaPath present means 404.html redirected an unknown sub-path
+      if (search.includes('?/') || (new URLSearchParams(window.location.search)).get('/') !== null) {
+        return null;
+      }
+      // Direct sub-path beyond the repo root
+      const afterBase = pathname.split(knownBase)[1] || '';
+      if (afterBase.replace(/^\/+/, '') !== '') {
+        return null;
+      }
+      return 'eurostyle'; // default (root URL)
     }
 
     // ── Apply brand settings ──────────────────────────────────────
@@ -1036,10 +1051,23 @@
       }
     }
 
+    // ── Show 404 page ─────────────────────────────────────────────
+    function show404() {
+      document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#333;background:#f5f5f5;">
+          <div style="font-size:80px;margin-bottom:16px;">🔍</div>
+          <h1 style="font-size:2em;margin:0 0 12px;">Pagina niet gevonden</h1>
+          <p style="color:#666;margin:0 0 24px;">De URL die je hebt ingevoerd bestaat niet.</p>
+          <p style="font-size:13px;color:#999;margin:0 0 32px;">Controleer of de link klopt.</p>
+          <a href="/itf14_gs1_128_label_generator/" style="padding:10px 24px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-size:14px;">Ga naar de generator</a>
+        </div>`;
+    }
+
     // ── Pre-fill reference test data on load ──────────────────────
     document.addEventListener('DOMContentLoaded', () => {
       // Apply brand settings based on URL
       const brand = getBrandFromURL();
+      if (brand === null) { show404(); return; }
       applyBrandSettings(brand);
       
       document.getElementById('input-ean').value      = '8711731033602';
