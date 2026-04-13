@@ -268,10 +268,12 @@ Pre-fill these values via JavaScript `DOMContentLoaded` so the label renders cor
 | Aantal | `15` |
 | Inhoud omschrijving | `500 ml` |
 | Batch | `06022629` |
-| Productiedatum | `2028-02-06` |
-| THT datum | `2028-03-31` |
+| Productiedatum | *(leeg — gebruiker vult in)* |
+| THT datum | *(leeg — gebruiker vult in)* |
 
-**Expected generated barcode values:**
+> De datumvelden starten bewust leeg. De gebruiker vult per batch de juiste datum in. Wanneer THT leeg is toont het label "PROD:" met de productiedatum; wanneer ook die leeg is staat er "—".
+
+**Expected generated barcode values (met testdatums `prodDate=2028-02-06`, `thtDate=2028-03-31`):**
 - GS1-128 GTIN-14 (AI 02, PI=0): `08711731033602`
 - ITF-14 GTIN-14 (PI=1): `18711731033609`
 - Full GS1-128 bwip-js data string: `^FNC10208711731033602371515280331112802061006022629` (with `^FNC1` after AI 37 qty if followed by more fields)
@@ -349,6 +351,10 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 ### Stap 9 — 404 pagina voor ongeldige URLs
 - Onbekende sub-paden (bijv. `/hsdgkjshghdhsdk`) tonen een nette "Pagina niet gevonden" pagina i.p.v. stilletjes de default brand te laden.
 - Knop "Ga naar de generator" linkt naar `/ecostyle` als standaard.
+
+### Stap 10 — Datumvelden starten leeg
+- `Productiedatum` en `THT datum` worden niet meer vooringevuld bij het laden van de pagina.
+- De gebruiker vult per batch de juiste datums in — geen risico op het per ongeluk afdrukken van testdatums.
 
 ---
 
