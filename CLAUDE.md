@@ -31,6 +31,13 @@ Always read `mission.md` first before any coding task.
 - Unknown/invalid sub-paths (not matching any brand) → show `show404()` page, not default brand
 - 404 page "Ga naar de generator" button links to `/itf14_gs1_128_label_generator/ecostyle`
 
+## Print layout
+
+- **A4:** `#preview-panel` is 210×297mm flex-centered; label is 105×148mm with `min-height`
+- **A6:** same `display: flex` centering approach as A4 — `#preview-panel` 105×148mm, `padding: 5mm`, label `width: 95mm` with **no fixed height** (`min-height: unset`)
+- **CRITICAL:** Never set a fixed `height` on `#label` in A6 mode. The label uses `flex-direction: column`; a fixed height causes `flex-shrink` to squish barcode zones. The SVGs inside have `height: auto` and don't shrink — they overflow and visually displace barcodes.
+- SVG barcodes always size via `width: 100%; height: auto` — do not add `max-height` overrides
+
 ## Live URLs
 
 - ECOstyle: `https://labels.eurostyle.nl/ecostyle`

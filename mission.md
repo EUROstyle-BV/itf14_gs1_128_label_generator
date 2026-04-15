@@ -335,8 +335,8 @@ JSON export/import van alle veldwaarden incl. logo (base64) en papierformaat. Be
 
 ### Stap 6 — A4 / A6 papierformaat keuze
 Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóór `window.print()`:
-- A4: bestaande CSS (label gecentreerd op A4).
-- A6: `@page { size: 105mm 148mm }` + compacte CSS-overrides (kleinere paddings, fonts, max-height op barcodes) om alle content in 148mm te laten passen.
+- A4: bestaande CSS (label gecentreerd op A4 via flexbox).
+- A6: `@page { size: 105mm 148mm }` + `#preview-panel` als `display: flex` (zelfde aanpak als A4) + compacte CSS-overrides (kleinere paddings, fonts) zodat alle content in 148mm past. Label heeft **geen vaste hoogte** — `min-height: unset`.
 
 ### Stap 7 — Brand varianten (ECOstyle, VITALstyle, AZstyle)
 - URL-gebaseerde brand detectie: `/ecostyle`, `/vitalstyle`, `/azstyle`
@@ -355,6 +355,12 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 ### Stap 10 — Datumvelden starten leeg
 - `Productiedatum` en `THT datum` worden niet meer vooringevuld bij het laden van de pagina.
 - De gebruiker vult per batch de juiste datums in — geen risico op het per ongeluk afdrukken van testdatums.
+
+### Stap 11 — A6 print: barcodes verkeerd gepositioneerd
+- **Probleem:** Bij afdrukken op A6 stonden barcodes verkeerd in het label vergeleken met de A4-versie.
+- **Oorzaak 1:** `display: block` op `#preview-panel` in A6-modus — flexbox-centrering verbroken.
+- **Oorzaak 2:** `height: 128mm !important` op `#label` (een `flex-direction: column` container). Als de gecombineerde hoogte van de zones niet exact 128mm is, past `flex-shrink` de barcodes zones aan. De SVG's binnenin hebben `height: auto` en reageren niet op verkleining — ze overlopen en verschuiven visueel.
+- **Oplossing:** Zelfde `display: flex` aanpak als A4 voor `#preview-panel`. Vaste `height` van `#label` vervangen door `min-height: unset` — content stroomt natuurlijk. Geen `max-height` op SVGs.
 
 ---
 
