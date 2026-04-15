@@ -34,8 +34,9 @@ Always read `mission.md` first before any coding task.
 ## Print layout
 
 - **A4:** `#preview-panel` is 210×297mm flex-centered; label is 105×148mm with `min-height`
-- **A6:** same `display: flex` centering approach as A4 — `#preview-panel` 105×148mm, `padding: 5mm`, label `width: 95mm` with **no fixed height** (`min-height: unset`)
+- **A6:** same `display: flex` centering approach as A4 — `#preview-panel` 105×148mm with `padding: 10mm`, label `width: 85mm` with **no fixed height** (`min-height: unset`)
 - **CRITICAL:** Never set a fixed `height` on `#label` in A6 mode. The label uses `flex-direction: column`; a fixed height causes `flex-shrink` to squish barcode zones. The SVGs inside have `height: auto` and don't shrink — they overflow and visually displace barcodes.
+- **CRITICAL:** Keep `width: 85mm` for the A6 label. The ITF-14 SVG intrinsic width matches 85mm; in print mode browsers do not scale SVGs UP beyond their intrinsic width, so widening the label (e.g. to 95mm) leaves the ITF-14 barcode narrower than the label.
 - SVG barcodes always size via `width: 100%; height: auto` — do not add `max-height` overrides
 
 ## Live URLs

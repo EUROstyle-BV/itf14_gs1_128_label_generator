@@ -923,31 +923,32 @@
               align-items: flex-start !important;
               width: 105mm !important;
               height: 148mm !important;
-              padding: 5mm !important;
+              padding: 10mm !important;
               background: none !important;
               min-height: unset !important;
               overflow: hidden !important;
             }
-            /* No fixed height — let content flow naturally; SVGs size via width:100%/height:auto */
+            /* width: 85mm = original intent (10mm margins each side on 105mm page).
+               NO fixed height — lets content flow naturally so SVGs are never squished. */
             #label {
-              width: 95mm !important;
+              width: 85mm !important;
               min-height: unset !important;
               box-shadow: none !important;
               margin: 0 !important;
             }
-            /* Compact layout to fit all content on A6 */
+            /* Compact layout to fit all content within 128mm (148mm - 2×10mm margin) */
             #zone-logo        { padding: 3px 0 !important; min-height: 28px !important; }
             #logo-img         { max-height: 28px !important; }
-            #zone-product     { padding: 3px 8px !important; }
+            #zone-product     { padding: 3px 10px !important; }
             #product-name     { font-size: 22px !important; line-height: 1.05 !important; }
-            #zone-inhoud      { padding: 2px 8px !important; }
+            #zone-inhoud      { padding: 2px 10px !important; }
             #inhoud-label,
-            #inhoud-value     { font-size: 13px !important; }
-            .grid-cell        { padding: 2px 6px !important; }
+            #inhoud-value     { font-size: 14px !important; }
+            .grid-cell        { padding: 2px 8px !important; }
             .grid-cell-label  { font-size: 9px !important; }
-            .grid-cell-value  { font-size: 13px !important; }
-            #zone-gs1128      { padding: 3px 6px 2px !important; }
-            #zone-itf14       { padding: 3px 6px 2px !important; }
+            .grid-cell-value  { font-size: 14px !important; }
+            #zone-gs1128      { padding: 3px 8px 2px !important; }
+            #zone-itf14       { padding: 3px 8px 2px !important; }
             #gs1128-text      { font-size: 7px !important; }
             #itf14-text       { font-size: 9px !important; }
           }
