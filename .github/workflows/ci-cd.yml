@@ -52,16 +52,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
+      - name: Build deployment content
+        run: |
+          mkdir -p deploy
+          cp index.html deploy/
+          cp 404.html deploy/ 2>/dev/null || true
+          cp -r images/ deploy/ 2>/dev/null || true
+          cp -r styles/ deploy/ 2>/dev/null || true
+          echo "labels.eurostyle.nl" > deploy/CNAME
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4.6.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          cname: labels.eurostyle.nl
-          exclude_assets: .github,node_modules,.git
+          branch: gh-pages
+          folder: deploy
+          clean: true
 
       - name: Deployment successful
-        run: echo "✓ Application deployed to GitHub Pages"
+        run: echo "✓ Application deployed to GitHub Pages at https://labels.eurostyle.nl"
