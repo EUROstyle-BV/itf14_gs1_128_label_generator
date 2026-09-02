@@ -19,10 +19,15 @@
     // Set pathSegmentsToKeep to 0 so e.g. /vitalstyle becomes /?/vitalstyle
     var pathSegmentsToKeep = 0;
 
+    // Detect if path contains /pallet for routing to pallet.html vs index.html
     var l = window.location;
+    var pathStr = l.pathname;
+    var isPallet = pathStr.includes('/pallet');
+    var targetFile = isPallet ? 'pallet.html' : 'index.html';
+
     l.replace(
       l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/' + targetFile + '?/' +
       l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
       (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
       l.hash
