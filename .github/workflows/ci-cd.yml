@@ -61,6 +61,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           cname: labels.eurostyle.nl
+          exclude_assets: .github,node_modules,.git
 
       - name: Deployment successful
         run: echo "✓ Application deployed to GitHub Pages"
