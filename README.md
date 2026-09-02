@@ -1,6 +1,6 @@
 # ITF-14 / GS1-128 Barcode Label Generator
 
-A single-file, self-contained HTML/CSS/JavaScript web application for generating professional shipping and logistics barcode labels in real time.
+Two single-file, self-contained HTML/CSS/JavaScript web applications for generating professional shipping and logistics barcode labels in real time. No build tools, no npm, no server required.
 
 ## Overview
 
@@ -244,6 +244,22 @@ This application is designed for **open public hosting** on a custom domain like
 - Minimal overhead — single HTML file, no dependencies, no build step
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting setup, GitHub Pages configuration, and deployment workflow.
+
+---
+
+## Live URLs
+
+### 📦 Doos Labels (Carton / ITF-14 + GS1-128)
+- **ECOstyle:** `https://labels.eurostyle.nl/ecostyle`
+- **VITALstyle:** `https://labels.eurostyle.nl/vitalstyle`
+- **AZ STYLE:** `https://labels.eurostyle.nl/azstyle`
+
+### 📮 Pallet Labels (GS1-128 only)
+- **ECOstyle:** `https://labels.eurostyle.nl/ecostyle/pallet`
+- **VITALstyle:** `https://labels.eurostyle.nl/vitalstyle/pallet`
+- **AZ STYLE:** `https://labels.eurostyle.nl/azstyle/pallet`
+
+---
 
 ## Privacy & Security
 
