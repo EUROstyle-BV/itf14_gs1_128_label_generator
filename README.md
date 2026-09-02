@@ -4,11 +4,22 @@ A single-file, self-contained HTML/CSS/JavaScript web application for generating
 
 ## Overview
 
-This application generates **EUROstyle / Vitalstyle outer-carton shipping labels** with:
+This project provides two complementary label generators:
+
+### 1. Carton Labels (`index.html`)
+Generates **EUROstyle / Vitalstyle outer-carton shipping labels** with:
 - **GS1-128 barcode** (top) — encodes product and batch information
 - **ITF-14 barcode** (bottom) — shipping carton identification with bearer frame
+- **Paper sizes:** A4 (centered) and A6 (105×148mm)
 - **Live form-to-preview synchronization** — no refresh needed
 - **Print and export functionality** — save to JSON or print directly
+
+### 2. Pallet Labels (`pallet.html`)
+Generates **GS1-128 pallet labels** with:
+- **GS1-128 barcode** — encodes product, quantity, production date, and batch
+- **Paper size:** Always A4 portrait
+- **2×2 data grid:** Content (GTIN-14), Count, PROD (YYMM), Batch
+- **Same save/load functionality** — import/export as JSON
 
 ### Project Location
 
@@ -61,6 +72,8 @@ Simply navigate to the desired brand URL. The application will automatically:
 ✨ **Save/Load** — export label data as JSON, reload anytime  - **Public hosting ready** — open deployment at `labels.eurostyle.nl` (no auth required)
 ## Getting Started
 
+### Carton Labels
+
 1. **Open the application:**
    ```
    index.html
@@ -86,6 +99,32 @@ Simply navigate to the desired brand URL. The application will automatically:
    - **Print:** Click "Label afdrukken" to print the label
    - **Save:** Click "Opslaan" to download label data as JSON
    - **Load:** Click "Openen" to load a previously saved label
+
+### Pallet Labels
+
+1. **Open the application:**
+   ```
+   pallet.html
+   ```
+
+2. **Fill in the form** (left panel):
+   - EAN-13 Code
+   - Count (units on pallet)
+   - PROD Date (YYMM format, e.g., 2601 = January 2026)
+   - Batch Number
+
+3. **View the label** (right panel):
+   The pallet label preview updates automatically. Shows:
+   - Product content (GTIN-14)
+   - Unit count
+   - Production date
+   - Batch number
+   - GS1-128 barcode
+
+4. **Print or Export:**
+   - **Print:** Click "Label afdrukken" (always prints on A4)
+   - **Save:** Click "Opslaan" to download label data as JSON
+   - **Load:** Click "Openen" to load a previously saved pallet label
 
 ## Technical Stack
 
@@ -136,11 +175,18 @@ Use these values to verify barcode rendering:
 
 ```
 itf14_gs1_128_label_generator/
-├── index.html                  # Main application (single file)
+├── index.html                  # Carton label generator (single file, self-contained)
+├── pallet.html                 # Pallet label generator (single file, self-contained)
+├── 404.html                    # GitHub Pages SPA routing redirect
 ├── .gitignore                  # Git ignore configuration
-├── README.md                   # This file
-├── mission.md                  # Detailed project specification
+├── README.md                   # This file (user documentation)
+├── mission.md                  # Detailed technical specification
 ├── CLAUDE.md                   # Developer notes
+├── DEPLOYMENT.md               # Hosting setup and infrastructure
+├── images/                     # Brand logos
+│   ├── Logo_ECOstyle_black.jpg
+│   ├── Vitalstyle_logo_zw.jpg
+│   └── Logo_AZstyle_black.jpg
 └── reference/                  # Reference materials and examples
 ```
 

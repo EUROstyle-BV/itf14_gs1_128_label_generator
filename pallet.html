@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pallet Label Generator — GS1-128</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── App Shell: two-column flex ──────────────────────────────── */
+    body {
+      display: flex;
+      background: #111317;
+    }
+
+    /* ── Left Panel: Input Form ───────────────────────────────────── */
+    #input-panel {
+      width: 360px;
+      min-width: 320px;
+      flex-shrink: 0;
+      background: #1a1d23;
+      color: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 0 0 24px 0;
+    }
+
+    #input-panel header {
+      padding: 20px 20px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-bottom: 1px solid #2a2d35;
+      color: #f0f0f0;
+    }
+
+    .form-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
+      border-radius: 4px;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .field input:focus {
+      border-color: #4a9eff;
+      box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+    }
+
+    .field input.invalid {
+      border-color: #ef4444;
+    }
+
+    .field input.warn {
+      border-color: #f59e0b;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 12px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      flex: 1;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+
+    button:active {
+      background-color: #1e40af;
+    }
+
+    #app-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid #2a2d35;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    /* ── Right Panel: Label Preview ──────────────────────────────── */
+    #preview-panel {
+      flex: 1;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    #label {
+      width: 210mm;
+      padding: 40px;
+      background: #ffffff;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .zone-header {
+      text-align: center;
+      padding: 16px 0;
+      border-bottom: 1.5px solid #000;
+    }
+
+    .zone-header h1 {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .zone-data {
+      padding: 20px 0;
+      border-bottom: 1.5px solid #000;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .grid-cell {
+      padding: 12px;
+      border-right: 1.5px solid #000;
+    }
+
+    .grid-cell:nth-child(odd):nth-child(-n+2) {
+      border-bottom: 1.5px solid #000;
+    }
+
+    .grid-cell:nth-child(even):nth-child(-n+2) {
+      border-right: none;
+      border-bottom: 1.5px solid #000;
+    }
+
+    .grid-cell:nth-child(n+3):nth-child(odd) {
+      border-bottom: none;
+    }
+
+    .grid-cell:nth-child(n+4):nth-child(even) {
+      border-right: none;
+    }
+
+    .grid-cell-label {
+      font-size: 11px;
+      color: #000;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .grid-cell-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .zone-barcode {
+      padding: 20px 0;
+      border-bottom: 1.5px solid #000;
+    }
+
+    #gs1128-container {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    #gs1128-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    #gs1128-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      text-align: center;
+      color: #000;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    #gs1128-warning {
+      color: #ef4444;
+      font-size: 12px;
+      text-align: center;
+      padding: 12px;
+      display: none;
+    }
+
+    @media print {
+      body { background: white; }
+      #input-panel { display: none; }
+      #preview-panel {
+        width: 100%;
+        padding: 0;
+        background: white;
+        justify-content: center;
+      }
+      #label { box-shadow: none; width: 210mm; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Left Panel: Input Form -->
+  <div id="input-panel">
+    <header>📦 Pallet Label Generator</header>
+    <div class="form-body">
+      <div class="field">
+        <label for="input-ean">EAN-13 Code</label>
+        <input type="text" id="input-ean" maxlength="13" placeholder="13 digits">
+        <div id="err-ean" class="error-msg"></div>
+      </div>
+
+      <div class="field">
+        <label for="input-count">Count (units on pallet)</label>
+        <input type="number" id="input-count" min="1" placeholder="e.g., 3700">
+      </div>
+
+      <div class="field">
+        <label for="input-proddate">PROD Date (YYMM)</label>
+        <input type="text" id="input-proddate" maxlength="4" placeholder="2601">
+        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">Format: YYMM (e.g., 2601 = Jan 2026)</div>
+      </div>
+
+      <div class="field">
+        <label for="input-batch">Batch Number</label>
+        <input type="text" id="input-batch" maxlength="20" placeholder="e.g., 1001B26">
+      </div>
+
+      <div class="button-group">
+        <button id="save-btn">💾 Opslaan</button>
+        <button id="load-btn">📂 Openen</button>
+      </div>
+
+      <button id="print-btn" style="width: 100%; margin-top: 8px;">🖨️ Label afdrukken</button>
+    </div>
+
+    <div id="app-footer">
+      Pallet Label Generator<br>
+      <span id="brand-footer">EUROSTYLE</span>
+    </div>
+  </div>
+
+  <!-- Right Panel: Label Preview -->
+  <div id="preview-panel">
+    <div id="label">
+      <!-- Header -->
+      <div class="zone-header">
+        <h1 id="brand-name">EUROSTYLE</h1>
+      </div>
+
+      <!-- Data Grid -->
+      <div class="zone-data">
+        <div class="data-grid">
+          <div class="grid-cell">
+            <div class="grid-cell-label">Content</div>
+            <div class="grid-cell-value" id="val-gtin14">—</div>
+          </div>
+          <div class="grid-cell">
+            <div class="grid-cell-label">Count</div>
+            <div class="grid-cell-value" id="val-count">—</div>
+          </div>
+          <div class="grid-cell">
+            <div class="grid-cell-label">PROD (YYMM)</div>
+            <div class="grid-cell-value" id="val-prod">—</div>
+          </div>
+          <div class="grid-cell">
+            <div class="grid-cell-label">Batch</div>
+            <div class="grid-cell-value" id="val-batch">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barcode -->
+      <div class="zone-barcode">
+        <div id="gs1128-container"></div>
+        <div id="gs1128-text"></div>
+        <div id="gs1128-warning"></div>
+      </div>
+    </div>
+  </div>
+
+  <style id="dynamic-print"></style>
+
+  <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
+
+  <script>
+    // ── Brand Configuration ──────────────────────────────────────
+    const brandConfig = {
+      ecostyle: { name: 'ECOSTYLE', logoSrc: 'images/Logo_ECOstyle_black.jpg', footer: 'ECOSTYLE' },
+      vitalstyle: { name: 'VITALstyle', logoSrc: 'images/Vitalstyle_logo_zw.jpg', footer: 'VITALstyle' },
+      azstyle: { name: 'AZ STYLE', logoSrc: 'images/Logo_AZstyle_black.jpg', footer: 'AZ STYLE' }
+    };
+
+    function getBrandFromURL() {
+      const url = window.location.pathname + window.location.search + window.location.hash;
+      if (url.includes('ecostyle')) return 'ecostyle';
+      if (url.includes('vitalstyle')) return 'vitalstyle';
+      if (url.includes('azstyle')) return 'azstyle';
+      return 'eurostyle';
+    }
+
+    function applyBrandSettings(brand) {
+      const config = brandConfig[brand] || { name: 'EUROSTYLE', footer: 'EUROSTYLE' };
+      document.title = `${config.name} Pallet Label Generator`;
+      document.querySelector('#input-panel header').textContent = `📦 ${config.name} Pallet Label Generator`;
+      document.getElementById('brand-name').textContent = config.name;
+      document.getElementById('brand-footer').textContent = config.footer;
+    }
+
+    // ── GS1 Utilities (shared with carton labels) ────────────────
+    function gs1CheckDigit(digits13) {
+      let sum = 0;
+      for (let i = 0; i < 13; i++) {
+        const multiplier = (i % 2 === 0) ? 3 : 1;
+        sum += parseInt(digits13[i]) * multiplier;
+      }
+      return (10 - (sum % 10)) % 10;
+    }
+
+    function buildGTIN14(ean13, pi) {
+      const ean12 = ean13.slice(0, 12);
+      const base13 = String(pi) + ean12;
+      const check = gs1CheckDigit(base13);
+      return base13 + String(check);
+    }
+
+    function validateEAN13(ean) {
+      if (!/^\d{13}$/.test(ean)) return 'invalid';
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(ean[i]) * (i % 2 === 0 ? 1 : 3);
+      }
+      const check = (10 - (sum % 10)) % 10;
+      return check === parseInt(ean[12]) ? 'ok' : 'check-error';
+    }
+
+    function yymm2yymmdd(yymm) {
+      // "2601" → "260101" (add day = 01)
+      if (!yymm || yymm.length !== 4) return '';
+      return yymm + '01';
+    }
+
+    function buildGS1128BwipData(gtin14_pi0, count, prodYYMM, batch) {
+      let data = '^FNC1';
+      data += '02' + gtin14_pi0;
+      if (count) {
+        data += '37' + count;
+        if (prodYYMM || batch) data += '^FNC1';
+      }
+      if (prodYYMM) data += '11' + yymm2yymmdd(prodYYMM);
+      if (batch) data += '10' + batch;
+      return data;
+    }
+
+    function buildGS1128HumanReadable(gtin14_pi0, count, prodYYMM, batch) {
+      const g = gtin14_pi0;
+      const gFormatted = `${g[0]} ${g.slice(1,8)} ${g.slice(8,13)} ${g[13]}`;
+      let parts = [`(02) ${gFormatted}`];
+      if (count) parts.push(`(37) ${count}`);
+      if (prodYYMM) parts.push(`(11) ${yymm2yymmdd(prodYYMM)}`);
+      if (batch) parts.push(`(10) ${batch}`);
+      return parts.join(' ');
+    }
+
+    // ── Update Label ─────────────────────────────────────────────
+    function updateLabel() {
+      const ean = document.getElementById('input-ean').value.trim();
+      const count = document.getElementById('input-count').value.trim();
+      const prodYYMM = document.getElementById('input-proddate').value.trim();
+      const batch = document.getElementById('input-batch').value.trim();
+
+      // Update display
+      document.getElementById('val-count').textContent = count || '—';
+      document.getElementById('val-prod').textContent = prodYYMM || '—';
+      document.getElementById('val-batch').textContent = batch || '—';
+
+      // EAN validation & barcode rendering
+      const eanInput = document.getElementById('input-ean');
+      const errEan = document.getElementById('err-ean');
+      const gs1Warn = document.getElementById('gs1128-warning');
+      const gs1Container = document.getElementById('gs1128-container');
+      const gs1Text = document.getElementById('gs1128-text');
+
+      eanInput.classList.remove('invalid', 'warn');
+      errEan.classList.remove('visible');
+      errEan.textContent = '';
+      gs1Warn.style.display = 'none';
+
+      const eanStatus = ean.length > 0 ? validateEAN13(ean) : 'empty';
+
+      if (eanStatus === 'invalid') {
+        eanInput.classList.add('invalid');
+        errEan.textContent = '⚠ Ongeldige EAN-13 (geen 13 cijfers)';
+        errEan.classList.add('visible');
+        gs1Warn.style.display = 'block';
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      if (eanStatus === 'check-error') {
+        eanInput.classList.add('warn');
+        errEan.textContent = '⚠ Controlecijfer onjuist';
+        errEan.classList.add('visible');
+      }
+
+      if (eanStatus === 'empty') {
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      // Build GTIN-14 (PI=0 for pallet content)
+      const gtin14_pi0 = buildGTIN14(ean, 0);
+      document.getElementById('val-gtin14').textContent = gtin14_pi0;
+
+      // Render GS1-128 barcode
+      gs1Container.innerHTML = '';
+      gs1Warn.style.display = 'none';
+      try {
+        const svgStr = bwipjs.toSVG({
+          bcid: 'code128',
+          text: buildGS1128BwipData(gtin14_pi0, count, prodYYMM, batch),
+          parsefnc: true,
+          scale: 2,
+          height: 25,
+          includetext: false,
+        });
+        gs1Container.innerHTML = svgStr;
+        const svgEl = gs1Container.querySelector('svg');
+        if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
+      } catch(e) {
+        console.error('GS1-128 render error:', e);
+        gs1Warn.style.display = 'block';
+        gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
+      }
+
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, prodYYMM, batch);
+    }
+
+    // ── Wire inputs to updateLabel ───────────────────────────────
+    ['input-ean', 'input-count', 'input-proddate', 'input-batch'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateLabel);
+      document.getElementById(id).addEventListener('change', updateLabel);
+    });
+
+    // ── Print button ─────────────────────────────────────────────
+    document.getElementById('print-btn').addEventListener('click', () => {
+      const dynStyle = document.getElementById('dynamic-print');
+      dynStyle.textContent = `
+        @media print {
+          @page { size: A4 portrait; margin: 0; }
+          #preview-panel {
+            width: 100%;
+            padding: 0;
+            background: white;
+            justify-content: center;
+            align-items: flex-start;
+          }
+          #label {
+            width: 210mm;
+            padding: 40px;
+            box-shadow: none;
+            margin: 0;
+          }
+        }
+      `;
+      setTimeout(() => window.print(), 100);
+      setTimeout(() => { dynStyle.textContent = ''; }, 1000);
+    });
+
+    // ── Save button ──────────────────────────────────────────────
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const data = {
+        ean: document.getElementById('input-ean').value,
+        count: document.getElementById('input-count').value,
+        prodDate: document.getElementById('input-proddate').value,
+        batch: document.getElementById('input-batch').value,
+      };
+      const filename = `pallet_${data.batch || 'export'}.json`;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Load button ──────────────────────────────────────────────
+    document.getElementById('load-btn').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            document.getElementById('input-ean').value = data.ean || '';
+            document.getElementById('input-count').value = data.count || '';
+            document.getElementById('input-proddate').value = data.prodDate || '';
+            document.getElementById('input-batch').value = data.batch || '';
+            updateLabel();
+          } catch (err) {
+            alert('Fout bij laden van bestand: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    // ── Initialize ───────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const brand = getBrandFromURL();
+      applyBrandSettings(brand);
+
+      // Pre-fill test data
+      document.getElementById('input-ean').value = '8711731033602';
+      document.getElementById('input-count').value = '3700';
+      document.getElementById('input-proddate').value = '2601';
+      document.getElementById('input-batch').value = '1001B26';
+      updateLabel();
+    });
+  </script>
+</body>
+</html>

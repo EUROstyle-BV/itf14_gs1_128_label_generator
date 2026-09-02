@@ -297,9 +297,12 @@ The A4-centered print layout ensures the GS1-128 quiet zones (left/right margins
 
 ```
 itf14-gs1128-generator/
-├── index.html                        ← single deliverable (all CSS + JS inline)
+├── index.html                        ← carton labels (ITF-14 + GS1-128)
+├── pallet.html                       ← pallet labels (GS1-128 only)
 ├── 404.html                          ← GitHub Pages SPA routing redirect
 ├── mission.md                        ← this file
+├── DEPLOYMENT.md                     ← deployment & hosting info
+├── README.md                         ← user-facing documentation
 ├── images/
 │   ├── Logo_ECOstyle_black.jpg       ← default logo for /ecostyle
 │   ├── Vitalstyle_logo_zw.jpg        ← default logo for /vitalstyle
@@ -308,7 +311,7 @@ itf14-gs1128-generator/
     └── omdoos_ZomerRust_Spray_500ml_06022629.pdf
 ```
 
-Keep everything in `index.html`. No npm, no build, no server — drag-and-drop portable.
+Both `index.html` and `pallet.html` are self-contained. No npm, no build, no server — drag-and-drop portable.
 
 ---
 
@@ -365,6 +368,16 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
   - *Oorzaak:* Labelbreedte verhoogd van 85mm naar 95mm. De ITF-14 SVG heeft een intrinsieke breedte van ~85mm. Browser-printmodus schaalt SVG's **niet op** boven hun intrinsieke breedte, ook niet met CSS `width: 100%`. De ITF-14 bleef op zijn intrinsieke breedte terwijl het labelkader breder was.
   - *Oplossing:* Labelbreedte terug naar `85mm` (oorspronkelijk ontwerp: 10mm marges aan beide kanten op 105mm pagina). GS1-128 heeft een bredere intrinsieke SVG en schaalt correct. ✓
 
+### Stap 12 — Pallet Labels (GS1-128 only) ✓
+- **Behofte:** Aparte pallet labels voor pallets (anders dan carton labels).
+- **Layout:** A4-gecentreerd (altijd, geen A6 optie). 2×2 data grid: Content (GTIN-14 PI=0), Count, PROD (YYMM), Batch.
+- **Barcode:** GS1-128 alleen (geen ITF-14). Dezelfde `code128 + parsefnc` logica als carton labels.
+- **PROD format:** Input als YYMM (4 digits); omgerekend naar YYMMDD (dag = 01) voor AI(11).
+- **Gedeelde code:** `gs1CheckDigit()`, `buildGTIN14(ean13, 0)`, `buildGS1128BwipData()` — identiek aan carton labels.
+- **Implementatie:** Separate `pallet.html` (geen code duplication; both are single-file apps).
+- **URL routing:** `/pallet` sub-path via `404.html` SPA routing → `pallet.html`.
+- **Brand variants:** Dezelfde support als carton labels (ecostyle, vitalstyle, azstyle).
+
 ---
 
 ## Out of Scope
@@ -373,5 +386,5 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 - Database of externe opslag
 - PDF export (browser print-to-PDF is voldoende)
 - Multi-label batch printing
-- SSCC-18 / pallet barcodes (toekomstige fase)
+- SSCC-18 barcodes (pallet-level identification; future phase)
 - Configureerbare packaging indicator (hardcoded: GS1-128 PI=0, ITF-14 PI=1)

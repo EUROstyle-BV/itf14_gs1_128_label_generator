@@ -107,11 +107,14 @@ All team members can access the project via the network share:
 
 | File | Purpose |
 |---|---|
-| `index.html` | Main application (single file, all-in-one) |
+| `index.html` | Carton label generator (single file, all-in-one) |
+| `pallet.html` | Pallet label generator (single file, all-in-one) |
 | `404.html` | GitHub Pages SPA routing redirect |
 | `images/Logo_*.jpg` | Brand logos |
 | `mission.md` | Technical specification (reference only) |
 | `CLAUDE.md` | Developer notes (reference only) |
+| `DEPLOYMENT.md` | This file (deployment info) |
+| `README.md` | User-facing documentation |
 
 ---
 
