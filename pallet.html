@@ -277,6 +277,11 @@
       </div>
 
       <div class="field">
+        <label for="input-product">Productnaam</label>
+        <input type="text" id="input-product" placeholder="e.g., Zilvervisval">
+      </div>
+
+      <div class="field">
         <label for="input-count">Count (units on pallet)</label>
         <input type="number" id="input-count" min="1" placeholder="e.g., 3700">
       </div>
@@ -311,7 +316,7 @@
     <div id="label">
       <!-- Header -->
       <div class="zone-header">
-        <h1 id="brand-name">EUROSTYLE</h1>
+        <h1 id="product-name">—</h1>
       </div>
 
       <!-- Data Grid -->
@@ -431,11 +436,13 @@
     // ── Update Label ─────────────────────────────────────────────
     function updateLabel() {
       const ean = document.getElementById('input-ean').value.trim();
+      const product = document.getElementById('input-product').value.trim();
       const count = document.getElementById('input-count').value.trim();
       const prodYYMM = document.getElementById('input-proddate').value.trim();
       const batch = document.getElementById('input-batch').value.trim();
 
       // Update display
+      document.getElementById('product-name').textContent = product || '—';
       document.getElementById('val-count').textContent = count || '—';
       document.getElementById('val-prod').textContent = prodYYMM || '—';
       document.getElementById('val-batch').textContent = batch || '—';
@@ -507,7 +514,7 @@
     }
 
     // ── Wire inputs to updateLabel ───────────────────────────────
-    ['input-ean', 'input-count', 'input-proddate', 'input-batch'].forEach(id => {
+    ['input-ean', 'input-product', 'input-count', 'input-proddate', 'input-batch'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateLabel);
       document.getElementById(id).addEventListener('change', updateLabel);
     });
@@ -541,11 +548,12 @@
     document.getElementById('save-btn').addEventListener('click', () => {
       const data = {
         ean: document.getElementById('input-ean').value,
+        product: document.getElementById('input-product').value,
         count: document.getElementById('input-count').value,
         prodDate: document.getElementById('input-proddate').value,
         batch: document.getElementById('input-batch').value,
       };
-      const filename = `pallet_${data.batch || 'export'}.json`;
+      const filename = `pallet_${data.batch || data.product || 'export'}.json`;
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -568,6 +576,7 @@
           try {
             const data = JSON.parse(ev.target.result);
             document.getElementById('input-ean').value = data.ean || '';
+            document.getElementById('input-product').value = data.product || '';
             document.getElementById('input-count').value = data.count || '';
             document.getElementById('input-proddate').value = data.prodDate || '';
             document.getElementById('input-batch').value = data.batch || '';
@@ -588,6 +597,7 @@
 
       // Pre-fill test data
       document.getElementById('input-ean').value = '8711731033602';
+      document.getElementById('input-product').value = 'Zilvervisval';
       document.getElementById('input-count').value = '3700';
       document.getElementById('input-proddate').value = '2601';
       document.getElementById('input-batch').value = '1001B26';
