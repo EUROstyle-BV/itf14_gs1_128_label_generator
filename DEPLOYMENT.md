@@ -1,144 +1,150 @@
-# Deployment Guide
+# Deployment & Infrastructure
 
-## Public Hosting (Optie 1 - Recommended)
+## Project Location
 
-Het label generator is nu voorbereidt voor openbare hosting op een eigen domein.
-
-### Setup: `labels.eurostyle.nl`
-
-1. **Copy `index.html` naar webserver**
-   - Geen build stap nodig
-   - Geen dependencies nodig
-   - Kan rechtstreeks op CDN/hosting platform
-
-2. **CORS & Security Headers** (optioneel)
-   ```
-   Access-Control-Allow-Origin: *
-   X-Content-Type-Options: nosniff
-   X-Frame-Options: SAMEORIGIN
-   ```
-
-3. **DNS Setup**
-   ```
-   labels.eurostyle.nl → je hosting server IP
-   ```
-
-### Resultaat
-
-- ✅ Klanten kunnen direct naar `https://labels.eurostyle.nl` gaan
-- ✅ Geen login/wachtwoord management
-- ✅ Minimale support overhead
-- ✅ Subtiele "Powered by EUROstyle" footer
-
-### Brand Variants
-
-De applicatie ondersteunt drie brand varianten via URL paths:
-
-1. `labels.eurostyle.nl/ecostyle` — ECOSTYLE logo
-2. `labels.eurostyle.nl/vitalstyle` — VITALSTYLE logo  
-3. `labels.eurostyle.nl/AZstyle` — AZ STYLE logo
-
-**Implementatie:** De applicatie detecteert automatisch de brand op basis van de URL path en past het logo aan in de labels.
-
-**GitHub Pages Setup:** Voor SPA routing op GitHub Pages is een `404.html` bestand toegevoegd dat alle requests naar `index.html` redirect, zodat de JavaScript routing werkt voor de brand URLs.
-
----
-
-## Optional: Analytics (Toekomstig)
-
-As template voor wanneer je analytics wilt inschakelen:
-
-```javascript
-// Uncomment de volgende rule in index.html (zoek: "logPageView()")
-logPageView();
+**Local Network Path (Development):**
+```
+\bpa01\c$\_EUROstyleTools\EUROstyleScripts\AI\itf14_gs1_128_label_generator
 ```
 
-Dit stuurt simpele page view events naar een analytics endpoint.
-Geen cookies, geen tracking van andere data.
-
----
-
-## Optional: A/B Testing
-
-In toekomst kun je dit gebruiken voor feature A/B testing:
-
-```javascript
-const variant = Math.random() > 0.5 ? 'A' : 'B';
-// Toon andere UI/features op basis van variant
+**GitHub Repository:**
+```
+https://github.com/EUROstyle-BV/itf14_gs1_128_label_generator
 ```
 
 ---
 
-## Hosting Opties
+## Live URLs
 
-| Platform | Setup | Prijs | Notes |
-|---|---|---|---|
-| **GitHub Pages** | Enable pages from main branch root | Free | Static host, perfect for static HTML |
-| **Netlify** | Drag-drop index.html | Free | Fast CDN, SSL included |
-| **Vercel** | Git deploy | Free | Built for modern web, overkill maar snel |
-| **EUROstyle VPS** | SCP upload | Your server | Full controle, moet je zelf HTTPS configuren |
+The application is publicly hosted at:
 
-**Aanbeveling:** GitHub Pages als je snelle, eenvoudige public hosting wilt; Netlify/Vercel als je extra CDN of build pipelines nodig hebt.
+### Production Domain
+- **Base:** `https://labels.eurostyle.nl/`
+- **ECOstyle:** `https://labels.eurostyle.nl/ecostyle`
+- **VITALstyle:** `https://labels.eurostyle.nl/vitalstyle`
+- **AZ STYLE:** `https://labels.eurostyle.nl/azstyle`
+
+### GitHub Pages (Fallback)
+- **ECOstyle:** `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/ecostyle`
+- **VITALstyle:** `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/vitalstyle`
+- **AZ STYLE:** `https://eurostyle-bv.github.io/itf14_gs1_128_label_generator/AZstyle`
+
+---
+
+## Hosting Setup
+
+### Custom Domain (`labels.eurostyle.nl`)
+
+The custom domain `labels.eurostyle.nl` is configured as a **CNAME** pointing to:
+```
+eurostyle-bv.github.io
+```
+
+**GitHub Pages Settings:**
+- Repository: `EUROstyle-BV/itf14_gs1_128_label_generator`
+- Custom domain: `labels.eurostyle.nl`
+- Branch: `main` (source)
+- HTTPS: Enabled (via GitHub)
+
+**SPA Routing:**
+- `404.html` performs client-side URL rewriting for brand variant routing
+- `pathSegmentsToKeep = 0` (no repository name prefix with custom domain)
+- URL pattern: `/?/{brand}` is converted to `/?/ecostyle`, `/?/vitalstyle`, etc.
 
 ---
 
-## GitHub Pages Setup
+## Deployment Workflow
 
-Voor deze repo is GitHub Pages de eenvoudigste manier om `index.html` te publiceren.
+### 1. Local Development
+```bash
+# Clone from GitHub
+git clone https://github.com/EUROstyle-BV/itf14_gs1_128_label_generator.git
 
-1. Zorg dat `index.html` in de root van de repository staat.
-2. Ga naar je repository op GitHub.
-3. Open `Settings` → `Pages`.
-4. Stel de source in op branch `main` en folder `/ (root)`.
-5. Klik op `Save`.
-6. Wacht enkele minuten totdat GitHub Pages de site heeft gepubliceerd.
+# Work on index.html and other files
+# No build step required — test directly in browser
 
-Je site wordt dan bereikbaar op:
-
-```
-https://<gebruikersnaam>.github.io/<repositorynaam>/
+# Test all brand variants
+# - Open index.html locally
+# - Or access via live URLs above
 ```
 
-### Custom domain (optioneel)
+### 2. Push to GitHub
+```bash
+# Stage changes
+git add .
 
-Als je een eigen domein wilt gebruiken, kun je:
+# Commit with descriptive message
+git commit -m "description of changes"
 
-- een `CNAME` bestand toevoegen met je domeinnaam, of
-- de custom domain sectie in GitHub Pages settings gebruiken.
+# Push to main
+git push origin main
+```
 
-Voor een custom subdomein zoals `labels.eurostyle.nl` voer je de DNS records in je domeinbeheer in en voeg je dezelfde domeinnaam toe in GitHub Pages settings.
+### 3. GitHub Pages Deployment
+After pushing to `main`, GitHub automatically deploys:
+- Files are served from the repository root
+- `index.html` is served for all paths (via `404.html` SPA routing)
+- Custom domain `labels.eurostyle.nl` is automatically updated
+- Typically live within 30-60 seconds
 
 ---
+
+## File Accessibility
+
+### From Network Share
+All team members can access the project via the network share:
+```
+\bpa01\c$\_EUROstyleTools\EUROstyleScripts\AI\itf14_gs1_128_label_generator
+```
+
+### From GitHub
+- Clone: `git clone https://github.com/EUROstyle-BV/itf14_gs1_128_label_generator.git`
+- Web: `https://github.com/EUROstyle-BV/itf14_gs1_128_label_generator`
+
+---
+
+## Key Files for Deployment
+
+| File | Purpose |
+|---|---|
+| `index.html` | Main application (single file, all-in-one) |
+| `404.html` | GitHub Pages SPA routing redirect |
+| `images/Logo_*.jpg` | Brand logos |
+| `mission.md` | Technical specification (reference only) |
+| `CLAUDE.md` | Developer notes (reference only) |
+
+---
+
+## Troubleshooting Deployment
+
+| Issue | Solution |
+|---|---|
+| Custom domain not resolving | Check CNAME record: `labels.eurostyle.nl → eurostyle-bv.github.io`. GitHub DNS may take up to 48 hours to fully propagate. |
+| Brand variants not loading | Verify `404.html` is in repository root and HTTPS is enabled in GitHub Pages settings. |
+| Barcodes not rendering on live URL | Verify bwip-js CDN is accessible (check browser console for errors). |
+| Recent changes not visible | Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R) to clear cache. GitHub Pages cache may take up to 5 minutes. |
+
+---
+
+## Maintenance & Updates
+
+- **No server required** — pure static hosting via GitHub Pages
+- **No build step** — edit `index.html` directly
+- **Continuous deployment** — push to `main` and changes go live automatically
+- **Backup:** The network share at `\bpa01\c$\_EUROstyleTools\EUROstyleScripts\AI` provides a local backup of the latest code
 
 ---
 
 ## Security Notes
 
-Deze app **slaat GEEN gegevens op** — alles gebeurt in browser geheugen.
-- No server-side data storage
-- No cookies
-- Alles wordt gewist als pagina sluit
-
-**Veilig voor public hosting** ✅
-
----
-
-## Monitor & Analytics
-
-Zodra live, kun je gebruiken:
-- **Google Analytics** (gratis, privacy-friendly)
-- **Sentry** (error tracking, free tier)
-- **Netlify Analytics** (als je Netlify gebruikt)
-
-Allemaal optioneel — app werkt prima zonder.
+- ✅ No authentication required for end users
+- ✅ No server-side code execution
+- ✅ All barcode data processed client-side (browser)
+- ✅ No external API calls except CDN (bwip-js)
+- ✅ HTTPS enforced via GitHub Pages
+- ✅ No data persistence on servers
 
 ---
 
-## Toekomst: Login/Branding
-
-Mocht je later toch login willen toevoegen:
-1. Add simple auth layer (Clerk, Auth0, Firebase)
-2. Track per-user usage
-3. Voeg klant-logo in header in
-
-Maar voor nu: **keep it simple & public**. 🚀
+**Version:** 1.0  
+**Last Updated:** September 2026

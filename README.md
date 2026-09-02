@@ -10,6 +10,13 @@ This application generates **EUROstyle / Vitalstyle outer-carton shipping labels
 - **Live form-to-preview synchronization** — no refresh needed
 - **Print and export functionality** — save to JSON or print directly
 
+### Project Location
+
+**Local Network Path:** `\\bpa01\c$\_EUROstyleTools\EUROstyleScripts\AI\itf14_gs1_128_label_generator`  
+**GitHub:** [EUROstyle-BV/itf14_gs1_128_label_generator](https://github.com/EUROstyle-BV/itf14_gs1_128_label_generator)  
+
+For deployment information, see [DEPLOYMENT.md](DEPLOYMENT.md)
+
 ## Brand Variants
 
 This application supports three brand variants, each accessible via different URL paths:
@@ -190,7 +197,7 @@ This application is designed for **open public hosting** on a custom domain like
 - No server-side data storage — all processing happens in the browser
 - Minimal overhead — single HTML file, no dependencies, no build step
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for setup and hosting recommendations.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting setup, GitHub Pages configuration, and deployment workflow.
 
 ## Privacy & Security
 
