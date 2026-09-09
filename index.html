@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Label Generator — ITF-14 / GS1-128</title>
+  <title>Label Generator — Carton & Pallet</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -416,6 +416,93 @@
       }
     }
 
+    /* ── Mode-specific: Carton vs Pallet ─────────────────────────── */
+    .pallet-only {
+      display: none;
+    }
+
+    .carton-only {
+      display: block;
+    }
+
+    body.pallet-mode .carton-only {
+      display: none;
+    }
+
+    body.pallet-mode .pallet-only {
+      display: block;
+    }
+
+    /* Pallet mode: label is 210mm wide with flexible height */
+    body.pallet-mode #label {
+      width: 210mm;
+      min-height: unset;
+    }
+
+    /* Pallet mode: different label zone styles */
+    body.pallet-mode .zone-header {
+      text-align: center;
+      padding: 16px 0;
+      border-bottom: 1.5px solid #000;
+    }
+
+    body.pallet-mode #product-name {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    body.pallet-mode #zone-inhoud {
+      display: none;
+    }
+
+    body.pallet-mode #zone-batch-tht {
+      display: none;
+    }
+
+    body.pallet-mode #zone-ean-art {
+      display: none;
+    }
+
+    body.pallet-mode #zone-itf14 {
+      display: none;
+    }
+
+    body.pallet-mode .zone-data {
+      padding: 20px 0;
+      border-bottom: 1.5px solid #000;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    body.pallet-mode .zone-data .grid-cell {
+      padding: 12px;
+      border-right: 1.5px solid #000;
+      border-bottom: 1.5px solid #000;
+    }
+
+    body.pallet-mode .zone-data .grid-cell:nth-child(2n) {
+      border-right: none;
+    }
+
+    body.pallet-mode .zone-data .grid-cell:nth-child(n+3) {
+      border-bottom: none;
+    }
+
+    body.pallet-mode #zone-product {
+      border-bottom: 1.5px solid #000;
+      padding: 12px 16px;
+    }
+
+    body.pallet-mode #zone-gs1128 {
+      padding: 20px 0;
+      border-bottom: none;
+    }
+
     /* ── Print Media ──────────────────────────────────────────────── */
     @media print {
       body {
@@ -429,7 +516,7 @@
         display: none !important;
       }
 
-      /* Default: center the 105×148mm label on an A4 sheet */
+      /* Carton: center the 105×148mm label on an A4 sheet */
       #preview-panel {
         display: flex;
         justify-content: center;
@@ -452,6 +539,18 @@
       @page {
         size: A4 portrait;
         margin: 0;
+      }
+
+      /* Pallet: 210mm width, A4 page */
+      body.pallet-mode #label {
+        width: 210mm;
+        min-height: unset;
+      }
+
+      body.pallet-mode #preview-panel {
+        width: 210mm;
+        height: 297mm;
+        align-items: flex-start;
       }
     }
   </style>
@@ -482,19 +581,24 @@
         <input type="text" id="input-product" placeholder="ZomerRust spray 500 ml" autocomplete="off">
       </div>
 
-      <div class="field">
+      <div class="field carton-only">
         <label for="input-artnr">Art.nr.</label>
         <input type="text" id="input-artnr" placeholder="1103360" autocomplete="off" spellcheck="false">
       </div>
 
-      <div class="field">
+      <div class="field carton-only">
         <label for="input-qty">Aantal (per doos)</label>
         <input type="number" id="input-qty" min="1" placeholder="15">
       </div>
 
-      <div class="field">
+      <div class="field carton-only">
         <label for="input-inhoud">Inhoud omschrijving</label>
         <input type="text" id="input-inhoud" placeholder="500 ml" autocomplete="off">
+      </div>
+
+      <div class="field pallet-only">
+        <label for="input-count">Aantal (eenheden op pallet)</label>
+        <input type="number" id="input-count" min="1" placeholder="3700">
       </div>
 
       <div class="field">
@@ -502,18 +606,24 @@
         <input type="text" id="input-batch" maxlength="20" placeholder="06022629" autocomplete="off" spellcheck="false">
       </div>
 
-      <div class="field">
+      <div class="field carton-only">
         <label for="input-proddate">Productiedatum</label>
         <input type="date" id="input-proddate">
         <span class="field-hint">Alleen gecodeerd in GS1-128 (AI 11)</span>
       </div>
 
-      <div class="field">
+      <div class="field carton-only">
         <label for="input-tht">THT datum</label>
         <input type="date" id="input-tht">
       </div>
 
-      <div class="field">
+      <div class="field pallet-only">
+        <label for="input-proddate-yymm">PROD Datum (YYMM)</label>
+        <input type="text" id="input-proddate-yymm" maxlength="4" placeholder="2601">
+        <span class="field-hint">Format: YYMM (bijvoorbeeld: 2601 = januari 2026)</span>
+      </div>
+
+      <div class="field carton-only">
         <label for="paper-size">Papierformaat</label>
         <select id="paper-size">
           <option value="a4">A4 (label gecentreerd)</option>
@@ -534,25 +644,25 @@
   <main id="preview-panel">
     <div id="label">
 
-      <!-- Zone 1: Logo -->
-      <div class="label-zone" id="zone-logo">
+      <!-- Carton mode zones (shown by default) -->
+      <div class="label-zone carton-only" id="zone-logo">
         <img id="logo-img" src="" alt="Logo">
         <span id="logo-placeholder">[ Logo ]</span>
       </div>
 
-      <!-- Zone 2: Product name -->
+      <!-- Shared: Product name zone (used in both modes) -->
       <div class="label-zone" id="zone-product">
         <div id="product-name">—</div>
       </div>
 
-      <!-- Zone 3: Inhoud -->
-      <div class="label-zone" id="zone-inhoud">
+      <!-- Carton: Inhoud zone -->
+      <div class="label-zone carton-only" id="zone-inhoud">
         <span id="inhoud-label">Inhoud:</span>
         <span id="inhoud-value">—</span>
       </div>
 
-      <!-- Zone 4: Batch / THT -->
-      <div class="label-zone" id="zone-batch-tht">
+      <!-- Carton: Batch / THT zone -->
+      <div class="label-zone carton-only" id="zone-batch-tht">
         <div class="grid-cell">
           <div class="grid-cell-label">Batch:</div>
           <div class="grid-cell-value" id="val-batch">—</div>
@@ -563,8 +673,8 @@
         </div>
       </div>
 
-      <!-- Zone 5: EAN / Art.nr. -->
-      <div class="label-zone" id="zone-ean-art">
+      <!-- Carton: EAN / Art.nr. zone -->
+      <div class="label-zone carton-only" id="zone-ean-art">
         <div class="grid-cell">
           <div class="grid-cell-label">EAN-code:</div>
           <div class="grid-cell-value" id="val-ean">—</div>
@@ -575,15 +685,35 @@
         </div>
       </div>
 
-      <!-- Zone 6: GS1-128 barcode -->
+      <!-- Pallet: Data grid zone (2x2: Content/Count/PROD/Batch) -->
+      <div class="pallet-only zone-data" id="zone-data">
+        <div class="grid-cell">
+          <div class="grid-cell-label">Content</div>
+          <div class="grid-cell-value" id="val-gtin14">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">Count</div>
+          <div class="grid-cell-value" id="val-count">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">PROD (YYMM)</div>
+          <div class="grid-cell-value" id="val-prod">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">Batch</div>
+          <div class="grid-cell-value" id="val-batch-pallet">—</div>
+        </div>
+      </div>
+
+      <!-- Shared: GS1-128 barcode zone -->
       <div class="label-zone" id="zone-gs1128">
         <div id="gs1128-container"></div>
         <div id="gs1128-text"></div>
         <div id="gs1128-warning">⚠ Ongeldige EAN-13</div>
       </div>
 
-      <!-- Zone 7: ITF-14 barcode -->
-      <div class="label-zone" id="zone-itf14">
+      <!-- Carton: ITF-14 barcode zone -->
+      <div class="label-zone carton-only" id="zone-itf14">
         <div id="itf14-container"></div>
         <div id="itf14-text"></div>
         <div id="itf14-warning">⚠ Ongeldige EAN-13</div>
@@ -644,7 +774,8 @@
     // ── Apply brand settings ──────────────────────────────────────
     function applyBrandSettings(brand) {
       const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
-      
+      const isPallet = document.body.classList.contains('pallet-mode');
+
       // Clean up URL for SPA routing (remove ?/brand query param, restore clean /brand path)
       const searchParams = new URLSearchParams(window.location.search);
       const spaPath = searchParams.get('/');
@@ -652,30 +783,36 @@
         const cleanSpa = spaPath.startsWith('/') ? spaPath : '/' + spaPath; // '/vitalstyle'
         window.history.replaceState(null, null, cleanSpa);
       }
-      
-      // Update page title
-      document.title = `${config.name} Doos Label Generator — ITF-14 / GS1-128`;
 
-      // Update header
-      document.querySelector('#input-panel header').textContent = `📦 ${config.name} Doos Label Generator`;
-      
+      // Update page title
+      const modeText = isPallet ? 'Pallet' : 'Doos';
+      const barcodeText = isPallet ? 'GS1-128' : 'ITF-14 / GS1-128';
+      document.title = `${config.name} ${modeText} Label Generator — ${barcodeText}`;
+
+      // Update header (only in carton mode; pallet mode header set in DOMContentLoaded)
+      if (!isPallet) {
+        document.querySelector('#input-panel header').textContent = `📦 ${config.name} Doos Label Generator`;
+      }
+
       // Update footer
       document.getElementById('app-footer').innerHTML = config.footer;
-      
-      // Set default logo image
-      const logoPlaceholder = document.getElementById('logo-placeholder');
-      const logoImg = document.getElementById('logo-img');
 
-      // Only set default logo if no custom logo is uploaded
-      if (logoImg.style.display === 'none' || !logoImg.src || logoImg.src.includes('data:') === false) {
-        if (config.logoSrc) {
-          logoImg.src = config.logoSrc;
-          logoImg.style.display = 'block';
-          logoPlaceholder.style.display = 'none';
-        } else {
-          logoPlaceholder.textContent = config.name;
-          logoPlaceholder.style.display = 'block';
-          logoImg.style.display = 'none';
+      // Set default logo image (carton mode only)
+      if (!isPallet) {
+        const logoPlaceholder = document.getElementById('logo-placeholder');
+        const logoImg = document.getElementById('logo-img');
+
+        // Only set default logo if no custom logo is uploaded
+        if (logoImg.style.display === 'none' || !logoImg.src || logoImg.src.includes('data:') === false) {
+          if (config.logoSrc) {
+            logoImg.src = config.logoSrc;
+            logoImg.style.display = 'block';
+            logoPlaceholder.style.display = 'none';
+          } else {
+            logoPlaceholder.textContent = config.name;
+            logoPlaceholder.style.display = 'block';
+            logoImg.style.display = 'none';
+          }
         }
       }
     }
@@ -713,24 +850,33 @@
       return `${d}-${m}-${y}`;
     }
 
+    function yymm2yymmdd(yymm) {
+      // "2601" → "260101" (add day = 01)
+      if (!yymm || yymm.length !== 4) return '';
+      return yymm + '01';
+    }
+
     // ── Utility: GS1-128 data builder for bwip-js code128 + parsefnc ───
     // ^FNC1 = FNC1 function character; parsefnc:true tells bwip-js to encode it
     // GS1-128 rule: FNC1 required after every variable-length AI except the last field
-    function buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch) {
+    // For carton mode: uses thtDate, prodDate (date objects)
+    // For pallet mode: uses prodYYMM (YYMM string, converted to YYMMDD01)
+    function buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch, prodYYMM) {
       let data = '^FNC1';                          // leading FNC1 → identifies as GS1-128
       data += '02' + gtin14_pi0;                  // AI(02): GTIN-14, fixed 14 digits
       if (qty) {
         data += '37' + qty;                       // AI(37): variable-length count
-        if (thtDate || prodDate || batch)
+        if (thtDate || prodDate || prodYYMM || batch)
           data += '^FNC1';                        // FNC1 separator: scanner needs this to
       }                                           //   find where variable qty ends
       if (thtDate)  data += '15' + dateToYYMMDD(thtDate);   // AI(15): fixed 6 digits
       if (prodDate) data += '11' + dateToYYMMDD(prodDate);  // AI(11): fixed 6 digits
+      if (prodYYMM) data += '11' + yymm2yymmdd(prodYYMM);   // AI(11): fixed 6 digits (pallet)
       if (batch)    data += '10' + batch;         // AI(10): variable-length, last → no FNC1
       return data;
     }
 
-    function buildGS1128HumanReadable(gtin14_pi0, qty, thtDate, prodDate, batch) {
+    function buildGS1128HumanReadable(gtin14_pi0, qty, thtDate, prodDate, batch, prodYYMM) {
       // Format with parentheses around AIs and spaces for readability
       const g = gtin14_pi0;
       // Format GTIN: "0 8711731 03360 2" style
@@ -739,6 +885,7 @@
       if (qty) parts.push(`(37) ${qty}`);
       if (thtDate) parts.push(`(15) ${dateToYYMMDD(thtDate)}`);
       if (prodDate) parts.push(`(11) ${dateToYYMMDD(prodDate)}`);
+      if (prodYYMM) parts.push(`(11) ${yymm2yymmdd(prodYYMM)}`);
       if (batch) parts.push(`(10) ${batch}`);
       return parts.join(' ');
     }
@@ -757,44 +904,67 @@
 
     // ── Main: updateLabel ─────────────────────────────────────────
     function updateLabel() {
-      const ean     = document.getElementById('input-ean').value.trim();
+      const isPallet = document.body.classList.contains('pallet-mode');
+      const ean = document.getElementById('input-ean').value.trim();
       const product = document.getElementById('input-product').value.trim();
-      const artnr   = document.getElementById('input-artnr').value.trim();
-      const qty     = document.getElementById('input-qty').value.trim();
-      const inhoud  = document.getElementById('input-inhoud').value.trim();
-      const batch   = document.getElementById('input-batch').value.trim();
-      const prodDate = document.getElementById('input-proddate').value;
-      const thtDate  = document.getElementById('input-tht').value;
+      const batch = document.getElementById('input-batch').value.trim();
 
-      // — Product name —
+      // Shared elements
       document.getElementById('product-name').textContent = product || '—';
 
-      // — Inhoud —
-      const inhoudVal = (qty && inhoud) ? `${qty} x ${inhoud}` : (qty || inhoud || '—');
-      document.getElementById('inhoud-value').textContent = inhoudVal;
+      // ── Carton-specific fields ──
+      if (!isPallet) {
+        const artnr = document.getElementById('input-artnr').value.trim();
+        const qty = document.getElementById('input-qty').value.trim();
+        const inhoud = document.getElementById('input-inhoud').value.trim();
+        const prodDate = document.getElementById('input-proddate').value;
+        const thtDate = document.getElementById('input-tht').value;
 
-      // — Batch, THT, EAN, Art.nr. —
-      document.getElementById('val-batch').textContent = batch || '—';
-      const thtLabelEl = document.getElementById('label-tht');
-      if (thtDate) {
-        thtLabelEl.textContent = 'THT:';
-        document.getElementById('val-tht').textContent = dateToDDMMYYYY(thtDate);
-      } else {
-        thtLabelEl.textContent = 'PROD:';
-        document.getElementById('val-tht').textContent = prodDate ? dateToDDMMYYYY(prodDate) : '—';
+        // Inhoud display
+        const inhoudVal = (qty && inhoud) ? `${qty} x ${inhoud}` : (qty || inhoud || '—');
+        document.getElementById('inhoud-value').textContent = inhoudVal;
+
+        // Batch, THT, EAN, Art.nr.
+        document.getElementById('val-batch').textContent = batch || '—';
+        const thtLabelEl = document.getElementById('label-tht');
+        if (thtDate) {
+          thtLabelEl.textContent = 'THT:';
+          document.getElementById('val-tht').textContent = dateToDDMMYYYY(thtDate);
+        } else {
+          thtLabelEl.textContent = 'PROD:';
+          document.getElementById('val-tht').textContent = prodDate ? dateToDDMMYYYY(prodDate) : '—';
+        }
+        document.getElementById('val-ean').textContent = ean || '—';
+        document.getElementById('val-artnr').textContent = artnr || '—';
+
+        // Render both barcodes for carton
+        renderCartonBarcodes(ean, qty, thtDate, prodDate, batch);
       }
-      document.getElementById('val-ean').textContent   = ean || '—';
-      document.getElementById('val-artnr').textContent = artnr || '—';
+      // ── Pallet-specific fields ──
+      else {
+        const count = document.getElementById('input-count').value.trim();
+        const prodYYMM = document.getElementById('input-proddate-yymm').value.trim();
 
-      // — EAN validation & barcode rendering —
+        // Pallet grid display
+        document.getElementById('val-count').textContent = count || '—';
+        document.getElementById('val-prod').textContent = prodYYMM || '—';
+        document.getElementById('val-batch-pallet').textContent = batch || '—';
+
+        // Render GS1-128 barcode for pallet (no ITF-14)
+        renderPalletBarcode(ean, count, prodYYMM, batch);
+      }
+    }
+
+    // ── Barcode rendering for carton mode (GS1-128 + ITF-14) ──
+    function renderCartonBarcodes(ean, qty, thtDate, prodDate, batch) {
       const eanInput = document.getElementById('input-ean');
-      const errEan   = document.getElementById('err-ean');
-      const gs1Warn      = document.getElementById('gs1128-warning');
-      const itfWarn      = document.getElementById('itf14-warning');
+      const errEan = document.getElementById('err-ean');
+      const gs1Warn = document.getElementById('gs1128-warning');
+      const itfWarn = document.getElementById('itf14-warning');
       const gs1Container = document.getElementById('gs1128-container');
       const itfContainer = document.getElementById('itf14-container');
-      const gs1Text      = document.getElementById('gs1128-text');
-      const itfText      = document.getElementById('itf14-text');
+      const gs1Text = document.getElementById('gs1128-text');
+      const itfText = document.getElementById('itf14-text');
 
       eanInput.classList.remove('invalid', 'warn');
       errEan.classList.remove('visible');
@@ -808,12 +978,12 @@
         eanInput.classList.add('invalid');
         errEan.textContent = '⚠ Ongeldige EAN-13 (geen 13 cijfers)';
         errEan.classList.add('visible');
-        gs1Warn.style.display  = 'block';
+        gs1Warn.style.display = 'block';
         gs1Container.innerHTML = '';
-        gs1Text.textContent    = '';
-        itfWarn.style.display  = 'block';
+        gs1Text.textContent = '';
+        itfWarn.style.display = 'block';
         itfContainer.innerHTML = '';
-        itfText.textContent    = '';
+        itfText.textContent = '';
         return;
       }
 
@@ -825,56 +995,123 @@
 
       if (eanStatus === 'empty') {
         gs1Container.innerHTML = '';
-        gs1Text.textContent    = '';
+        gs1Text.textContent = '';
         itfContainer.innerHTML = '';
-        itfText.textContent    = '';
+        itfText.textContent = '';
         return;
       }
 
       // Build GTIN-14s
-      const gtin14_pi0 = buildGTIN14(ean, 0);  // for GS1-128 AI (02)
-      const gtin14_pi1 = buildGTIN14(ean, 1);  // for ITF-14
+      const gtin14_pi0 = buildGTIN14(ean, 0); // for GS1-128
+      const gtin14_pi1 = buildGTIN14(ean, 1); // for ITF-14
 
-      // — GS1-128 barcode (bwip-js code128 + parsefnc: explicit ^FNC1 encoding) —
+      // Render GS1-128
       gs1Container.innerHTML = '';
-      gs1Warn.style.display  = 'none';
+      gs1Warn.style.display = 'none';
       try {
         const svgStr = bwipjs.toSVG({
-          bcid:        'code128',
-          text:        buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch),
-          parsefnc:    true,
-          scale:       2,
-          height:      25,
+          bcid: 'code128',
+          text: buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch),
+          parsefnc: true,
+          scale: 2,
+          height: 25,
           includetext: false,
         });
         gs1Container.innerHTML = svgStr;
         const svgEl = gs1Container.querySelector('svg');
         if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
-      } catch(e) {
+      } catch (e) {
         console.error('GS1-128 render error:', e);
         gs1Warn.style.display = 'block';
-        gs1Warn.textContent   = '⚠ GS1-128 fout: ' + (e.message || e);
+        gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
       }
 
       gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, qty, thtDate, prodDate, batch);
 
-      // — ITF-14 barcode (bwip-js itf14: includes bearer frame, correct symbology) —
+      // Render ITF-14
       itfContainer.innerHTML = '';
       try {
         const svgStr = bwipjs.toSVG({
-          bcid:        'itf14',
-          text:        gtin14_pi1,
-          scale:       2,
-          height:      20,
+          bcid: 'itf14',
+          text: gtin14_pi1,
+          scale: 2,
+          height: 20,
           includetext: false,
         });
         itfContainer.innerHTML = svgStr;
         const svgEl = itfContainer.querySelector('svg');
         if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
-      } catch(e) {
+      } catch (e) {
         console.error('ITF-14 render error:', e);
       }
       itfText.textContent = gtin14_pi1;
+    }
+
+    // ── Barcode rendering for pallet mode (GS1-128 only) ──
+    function renderPalletBarcode(ean, count, prodYYMM, batch) {
+      const eanInput = document.getElementById('input-ean');
+      const errEan = document.getElementById('err-ean');
+      const gs1Warn = document.getElementById('gs1128-warning');
+      const gs1Container = document.getElementById('gs1128-container');
+      const gs1Text = document.getElementById('gs1128-text');
+
+      eanInput.classList.remove('invalid', 'warn');
+      errEan.classList.remove('visible');
+      errEan.textContent = '';
+      gs1Warn.style.display = 'none';
+
+      const eanStatus = ean.length > 0 ? validateEAN13(ean) : 'empty';
+
+      if (eanStatus === 'invalid') {
+        eanInput.classList.add('invalid');
+        errEan.textContent = '⚠ Ongeldige EAN-13 (geen 13 cijfers)';
+        errEan.classList.add('visible');
+        gs1Warn.style.display = 'block';
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      if (eanStatus === 'check-error') {
+        eanInput.classList.add('warn');
+        errEan.textContent = '⚠ Controlecijfer onjuist';
+        errEan.classList.add('visible');
+      }
+
+      if (eanStatus === 'empty') {
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      // Build GTIN-14 (PI=0 for pallet)
+      const gtin14_pi0 = buildGTIN14(ean, 0);
+      document.getElementById('val-gtin14').textContent = gtin14_pi0;
+
+      // Render GS1-128
+      gs1Container.innerHTML = '';
+      gs1Warn.style.display = 'none';
+      try {
+        const svgStr = bwipjs.toSVG({
+          bcid: 'code128',
+          text: buildGS1128BwipData(gtin14_pi0, count, null, null, batch, prodYYMM),
+          parsefnc: true,
+          scale: 2,
+          height: 25,
+          includetext: false,
+        });
+        gs1Container.innerHTML = svgStr;
+        const svgEl = gs1Container.querySelector('svg');
+        if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
+      } catch (e) {
+        console.error('GS1-128 render error:', e);
+        gs1Warn.style.display = 'block';
+        gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
+      }
+
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, null, null, batch, prodYYMM);
     }
 
     // ── Logo loader ───────────────────────────────────────────────
@@ -900,11 +1137,18 @@
     });
 
     // ── Wire all inputs to updateLabel ────────────────────────────
-    ['input-ean','input-product','input-artnr','input-qty',
-     'input-inhoud','input-batch','input-proddate','input-tht'
-    ].forEach(id => {
-      document.getElementById(id).addEventListener('input',  updateLabel);
-      document.getElementById(id).addEventListener('change', updateLabel);
+    const inputFields = [
+      'input-ean', 'input-product', 'input-batch',        // shared
+      'input-artnr', 'input-qty', 'input-inhoud',        // carton-specific
+      'input-proddate', 'input-tht',                      // carton-specific
+      'input-count', 'input-proddate-yymm'                // pallet-specific
+    ];
+    inputFields.forEach(id => {
+      const elem = document.getElementById(id);
+      if (elem) {
+        elem.addEventListener('input', updateLabel);
+        elem.addEventListener('change', updateLabel);
+      }
     });
 
     // ── Print button ──────────────────────────────────────────────
@@ -963,34 +1207,44 @@
 
     // ── Save label data to JSON file ──────────────────────────────
     document.getElementById('save-btn').addEventListener('click', function() {
-      const product  = document.getElementById('input-product').value.trim();
-      const logoImg  = document.getElementById('logo-img');
-      const logoData = (logoImg.style.display !== 'none' && logoImg.src.startsWith('data:'))
-                       ? logoImg.src : '';
+      const isPallet = document.body.classList.contains('pallet-mode');
+      const product = document.getElementById('input-product').value.trim();
+      const batch = document.getElementById('input-batch').value.trim();
 
-      const data = {
-        ean:       document.getElementById('input-ean').value,
-        product:   document.getElementById('input-product').value,
-        artnr:     document.getElementById('input-artnr').value,
-        qty:       document.getElementById('input-qty').value,
-        inhoud:    document.getElementById('input-inhoud').value,
-        batch:     document.getElementById('input-batch').value,
-        proddate:  document.getElementById('input-proddate').value,
-        tht:       document.getElementById('input-tht').value,
-        papersize: document.getElementById('paper-size').value,
-        logo:      logoData,
-        brand:     getBrandFromURL(), // Save current brand
+      let data = {
+        mode: isPallet ? 'pallet' : 'carton',
+        ean: document.getElementById('input-ean').value,
+        product: product,
+        batch: batch,
+        brand: getBrandFromURL(),
       };
 
-      // Filename: product name + batch number, spaces → underscores, strip invalid chars
-      const batch    = document.getElementById('input-batch').value.trim();
+      if (isPallet) {
+        // Pallet mode data
+        data.count = document.getElementById('input-count').value;
+        data.proddate = document.getElementById('input-proddate-yymm').value;
+      } else {
+        // Carton mode data
+        const logoImg = document.getElementById('logo-img');
+        const logoData = (logoImg.style.display !== 'none' && logoImg.src.startsWith('data:'))
+                         ? logoImg.src : '';
+        data.artnr = document.getElementById('input-artnr').value;
+        data.qty = document.getElementById('input-qty').value;
+        data.inhoud = document.getElementById('input-inhoud').value;
+        data.proddate = document.getElementById('input-proddate').value;
+        data.tht = document.getElementById('input-tht').value;
+        data.papersize = document.getElementById('paper-size').value;
+        data.logo = logoData;
+      }
+
+      // Filename: product name + batch number
       const namePart = (product || 'label').replace(/[\\/:*?"<>|]/g, '').trim().replace(/\s+/g, '_');
       const filename = (namePart + (batch ? '_' + batch : '')) || 'label';
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
       a.download = filename + '.json';
       a.click();
       URL.revokeObjectURL(url);
@@ -1009,27 +1263,37 @@
       reader.onload = function(ev) {
         try {
           const d = JSON.parse(ev.target.result);
-          document.getElementById('input-ean').value      = d.ean       || '';
-          document.getElementById('input-product').value  = d.product   || '';
-          document.getElementById('input-artnr').value    = d.artnr     || '';
-          document.getElementById('input-qty').value      = d.qty       || '';
-          document.getElementById('input-inhoud').value   = d.inhoud    || '';
-          document.getElementById('input-batch').value    = d.batch     || '';
-          document.getElementById('input-proddate').value = d.proddate  || '';
-          document.getElementById('input-tht').value      = d.tht       || '';
-          if (d.papersize) document.getElementById('paper-size').value = d.papersize;
+          const isPallet = d.mode === 'pallet';
 
-          // Restore logo if saved, otherwise apply brand logo
-          if (d.logo && d.logo.startsWith('data:')) {
-            const img = document.getElementById('logo-img');
-            const ph  = document.getElementById('logo-placeholder');
-            img.src           = d.logo;
-            img.style.display = 'block';
-            ph.style.display  = 'none';
+          // Shared fields
+          document.getElementById('input-ean').value = d.ean || '';
+          document.getElementById('input-product').value = d.product || '';
+          document.getElementById('input-batch').value = d.batch || '';
+
+          if (isPallet) {
+            // Load pallet-specific fields
+            document.getElementById('input-count').value = d.count || '';
+            document.getElementById('input-proddate-yymm').value = d.proddate || '';
           } else {
-            // Apply brand logo (either from saved data or current URL)
-            const brand = d.brand || getBrandFromURL();
-            applyBrandSettings(brand);
+            // Load carton-specific fields
+            document.getElementById('input-artnr').value = d.artnr || '';
+            document.getElementById('input-qty').value = d.qty || '';
+            document.getElementById('input-inhoud').value = d.inhoud || '';
+            document.getElementById('input-proddate').value = d.proddate || '';
+            document.getElementById('input-tht').value = d.tht || '';
+            if (d.papersize) document.getElementById('paper-size').value = d.papersize;
+
+            // Restore logo if saved, otherwise apply brand logo
+            if (d.logo && d.logo.startsWith('data:')) {
+              const img = document.getElementById('logo-img');
+              const ph = document.getElementById('logo-placeholder');
+              img.src = d.logo;
+              img.style.display = 'block';
+              ph.style.display = 'none';
+            } else {
+              const brand = d.brand || getBrandFromURL();
+              applyBrandSettings(brand);
+            }
           }
 
           updateLabel();
@@ -1077,22 +1341,28 @@
       // Check if pallet mode (URL contains 'pallet')
       const isPallet = window.location.href.includes('pallet');
 
+      // Set mode class on body
+      if (isPallet) {
+        document.body.classList.add('pallet-mode');
+        // Update header for pallet mode
+        document.querySelector('#input-panel header').textContent = `📦 ${brand === null ? 'Pallet' : brand.toUpperCase()} Pallet Label Generator`;
+      }
+
       if (isPallet) {
         // Pallet label defaults
-        document.getElementById('input-ean').value      = '8711731033602';
-        document.getElementById('input-product').value  = 'ZomerRust spray pallet';
-        document.getElementById('input-artnr').value    = '';
-        document.getElementById('input-qty').value      = '';
-        document.getElementById('input-inhoud').value   = '';
-        document.getElementById('input-batch').value    = '06022629';
+        document.getElementById('input-ean').value = '8711731033602';
+        document.getElementById('input-product').value = 'ZomerRust spray pallet';
+        document.getElementById('input-count').value = '3700';
+        document.getElementById('input-proddate-yymm').value = '2601';
+        document.getElementById('input-batch').value = '06022629';
       } else {
         // Carton label defaults
-        document.getElementById('input-ean').value      = '8711731033602';
-        document.getElementById('input-product').value  = 'ZomerRust spray 500 ml';
-        document.getElementById('input-artnr').value    = '1103360';
-        document.getElementById('input-qty').value      = '15';
-        document.getElementById('input-inhoud').value   = '500 ml';
-        document.getElementById('input-batch').value    = '06022629';
+        document.getElementById('input-ean').value = '8711731033602';
+        document.getElementById('input-product').value = 'ZomerRust spray 500 ml';
+        document.getElementById('input-artnr').value = '1103360';
+        document.getElementById('input-qty').value = '15';
+        document.getElementById('input-inhoud').value = '500 ml';
+        document.getElementById('input-batch').value = '06022629';
       }
       updateLabel();
       // Optional: Log page view (uncomment when analytics ready)
