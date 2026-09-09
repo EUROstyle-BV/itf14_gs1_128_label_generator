@@ -57,9 +57,13 @@ jobs:
         run: |
           mkdir -p deploy
           cp index.html deploy/
+          cp pallet.html deploy/ 2>/dev/null || true
           cp 404.html deploy/ 2>/dev/null || true
           cp -r images/ deploy/ 2>/dev/null || true
           cp -r styles/ deploy/ 2>/dev/null || true
+          cp -r ecostyle/ deploy/ 2>/dev/null || true
+          cp -r vitalstyle/ deploy/ 2>/dev/null || true
+          cp -r azstyle/ deploy/ 2>/dev/null || true
           echo "labels.eurostyle.nl" > deploy/CNAME
 
       - name: Deploy to GitHub Pages
