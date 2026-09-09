@@ -1340,12 +1340,18 @@
 
       // Check if pallet mode (URL contains 'pallet')
       const isPallet = window.location.href.includes('pallet');
+      console.log('[LABEL-GEN] URL:', window.location.href);
+      console.log('[LABEL-GEN] isPallet:', isPallet);
 
       // Set mode class on body
       if (isPallet) {
         document.body.classList.add('pallet-mode');
+        console.log('[LABEL-GEN] Added pallet-mode class');
+        console.log('[LABEL-GEN] body classes:', document.body.className);
         // Update header for pallet mode
         document.querySelector('#input-panel header').textContent = `📦 ${brand === null ? 'Pallet' : brand.toUpperCase()} Pallet Label Generator`;
+      } else {
+        console.log('[LABEL-GEN] Carton mode detected');
       }
 
       if (isPallet) {
