@@ -1073,13 +1073,27 @@
       const brand = getBrandFromURL();
       if (brand === null) { show404(); return; }
       applyBrandSettings(brand);
-      
-      document.getElementById('input-ean').value      = '8711731033602';
-      document.getElementById('input-product').value  = 'ZomerRust spray 500 ml';
-      document.getElementById('input-artnr').value    = '1103360';
-      document.getElementById('input-qty').value      = '15';
-      document.getElementById('input-inhoud').value   = '500 ml';
-      document.getElementById('input-batch').value    = '06022629';
+
+      // Check if pallet mode (URL contains 'pallet')
+      const isPallet = window.location.href.includes('pallet');
+
+      if (isPallet) {
+        // Pallet label defaults
+        document.getElementById('input-ean').value      = '8711731033602';
+        document.getElementById('input-product').value  = 'ZomerRust spray pallet';
+        document.getElementById('input-artnr').value    = '';
+        document.getElementById('input-qty').value      = '';
+        document.getElementById('input-inhoud').value   = '';
+        document.getElementById('input-batch').value    = '06022629';
+      } else {
+        // Carton label defaults
+        document.getElementById('input-ean').value      = '8711731033602';
+        document.getElementById('input-product').value  = 'ZomerRust spray 500 ml';
+        document.getElementById('input-artnr').value    = '1103360';
+        document.getElementById('input-qty').value      = '15';
+        document.getElementById('input-inhoud').value   = '500 ml';
+        document.getElementById('input-batch').value    = '06022629';
+      }
       updateLabel();
       // Optional: Log page view (uncomment when analytics ready)
       // logPageView();
