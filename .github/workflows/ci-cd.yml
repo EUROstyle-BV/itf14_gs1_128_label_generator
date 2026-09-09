@@ -55,16 +55,26 @@ jobs:
 
       - name: Build deployment content
         run: |
+          echo "📦 Checking files before deploy..."
+          ls -la | grep -E "index|pallet|ecostyle|vitalstyle|azstyle"
+
           mkdir -p deploy
           cp index.html deploy/
           cp pallet.html deploy/ 2>/dev/null || true
           cp 404.html deploy/ 2>/dev/null || true
           cp -r images/ deploy/ 2>/dev/null || true
           cp -r styles/ deploy/ 2>/dev/null || true
-          cp -r ecostyle/ deploy/ 2>/dev/null || true
-          cp -r vitalstyle/ deploy/ 2>/dev/null || true
-          cp -r azstyle/ deploy/ 2>/dev/null || true
+
+          # Copy brand directories
+          if [ -d "ecostyle" ]; then cp -r ecostyle deploy/; echo "✓ Copied ecostyle"; fi
+          if [ -d "vitalstyle" ]; then cp -r vitalstyle deploy/; echo "✓ Copied vitalstyle"; fi
+          if [ -d "azstyle" ]; then cp -r azstyle deploy/; echo "✓ Copied azstyle"; fi
+
           echo "labels.eurostyle.nl" > deploy/CNAME
+
+          echo ""
+          echo "📦 Deployment package contents:"
+          find deploy -type f | sort
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.6.1
