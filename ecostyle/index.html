@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Label Generator — Carton & Pallet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── App Shell: two-column flex ──────────────────────────────── */
+    body {
+      display: flex;
+      background: #111317;
+    }
+
+    /* ── Left Panel: Input Form ───────────────────────────────────── */
+    #input-panel {
+      width: 360px;
+      min-width: 320px;
+      flex-shrink: 0;
+      background: #1a1d23;
+      color: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 0 0 24px 0;
+    }
+
+    #input-panel header {
+      padding: 20px 20px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-bottom: 1px solid #2a2d35;
+      color: #f0f0f0;
+    }
+
+    .form-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="date"] {
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
+      border-radius: 4px;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .field input:focus {
+      border-color: #4a9eff;
+      box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+    }
+
+    .field input.invalid {
+      border-color: #ef4444;
+    }
+
+    .field input.warn {
+      border-color: #f59e0b;
+    }
+
+    .field select {
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
+      border-radius: 4px;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .field select:focus {
+      border-color: #4a9eff;
+      box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+    }
+
+    .field input[type="file"] {
+      background: #2a2d35;
+      border: 1px solid #3a3d45;
+      border-radius: 4px;
+      color: #9ca3af;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .field-hint {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: #ef4444;
+      display: none;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    #print-btn {
+      margin: 8px 20px 0;
+      padding: 12px 0;
+      background: #2563eb;
+      border: none;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #print-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .action-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 8px 20px 0;
+    }
+
+    #save-btn {
+      padding: 10px 0;
+      background: #16a34a;
+      border: none;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #save-btn:hover { background: #15803d; }
+
+    #open-btn {
+      padding: 10px 0;
+      background: #374151;
+      border: 1px solid #4b5563;
+      border-radius: 6px;
+      color: #e8e8e8;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #open-btn:hover { background: #4b5563; }
+
+    /* ── Right Panel: Label Preview ───────────────────────────────── */
+    #preview-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #23272f;
+      padding: 32px;
+      min-height: 100vh;
+      overflow: auto;
+    }
+
+    /* ── Label — the printable output ────────────────────────────── */
+    #label {
+      width: 105mm;
+      min-height: 148mm;
+      background: #ffffff;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    /* Label zones */
+    .label-zone {
+      border-bottom: 1.5px solid #000;
+    }
+
+    .label-zone:last-child {
+      border-bottom: none;
+    }
+
+    /* Logo zone */
+    #zone-logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 0;
+      min-height: 60px;
+    }
+
+    #logo-img {
+      max-height: 80px;
+      max-width: 90%;
+      display: none;
+    }
+
+    #logo-placeholder {
+      color: #bbb;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* Product name zone */
+    #zone-product {
+      padding: 8px 16px;
+    }
+
+    #product-name {
+      font-family: 'Archivo Black', sans-serif;
+      font-weight: 900;
+      font-size: 38px;
+      line-height: 1.1;
+      color: #000;
+      word-break: break-word;
+    }
+
+    /* Inhoud zone */
+    #zone-inhoud {
+      padding: 6px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+
+    #inhoud-label {
+      font-family: 'Archivo Black', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    #inhoud-value {
+      font-family: 'Archivo Black', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      text-align: right;
+    }
+
+    /* Batch / THT row */
+    #zone-batch-tht {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* EAN / Art.nr. row */
+    #zone-ean-art {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-cell {
+      padding: 6px 12px 8px;
+    }
+
+    .grid-cell:first-child {
+      border-right: 1.5px solid #000;
+    }
+
+    .grid-cell-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      color: #000;
+      margin-bottom: 2px;
+    }
+
+    .grid-cell-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    /* GS1-128 zone */
+    #zone-gs1128 {
+      padding: 8px 12px 6px;
+    }
+
+    #gs1128-container {
+      width: 100%;
+      display: block;
+    }
+
+    #gs1128-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    #gs1128-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 400;
+      color: #000;
+      margin-top: 3px;
+      word-break: break-all;
+    }
+
+    #gs1128-warning {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #ef4444;
+      padding: 8px 0;
+      display: none;
+    }
+
+    /* ITF-14 zone */
+    #zone-itf14 {
+      padding: 8px 12px 6px;
+    }
+
+    #itf14-container {
+      width: 100%;
+      display: block;
+    }
+
+    #itf14-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    #itf14-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      color: #000;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    #itf14-warning {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #ef4444;
+      padding: 8px 0;
+      text-align: center;
+      display: none;
+    }
+
+    /* ── App Footer ──────────────────────────────────────────────── */
+    #app-footer {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #888;
+      background: rgba(17, 19, 23, 0.8);
+      backdrop-filter: blur(4px);
+      border-top: 1px solid #2a2d35;
+      border-left: 1px solid #2a2d35;
+      z-index: 100;
+    }
+
+    #app-footer a {
+      color: #4a9eff;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    #app-footer a:hover {
+      color: #6bb3ff;
+      text-decoration: underline;
+    }
+
+    @media print {
+      #app-footer {
+        display: none !important;
+      }
+    }
+
+    /* ── Mode-specific: Carton vs Pallet ─────────────────────────── */
+    .pallet-only {
+      display: none;
+    }
+
+    .carton-only {
+      display: block;
+    }
+
+    body.pallet-mode .carton-only {
+      display: none;
+    }
+
+    body.pallet-mode .pallet-only {
+      display: block;
+    }
+
+    /* Pallet mode: label is 210mm wide with flexible height */
+    body.pallet-mode #label {
+      width: 210mm;
+      min-height: unset;
+    }
+
+    /* Pallet mode: different label zone styles */
+    body.pallet-mode .zone-header {
+      text-align: center;
+      padding: 16px 0;
+      border-bottom: 1.5px solid #000;
+    }
+
+    body.pallet-mode #product-name {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    body.pallet-mode #zone-inhoud {
+      display: none;
+    }
+
+    body.pallet-mode #zone-batch-tht {
+      display: none;
+    }
+
+    body.pallet-mode #zone-ean-art {
+      display: none;
+    }
+
+    body.pallet-mode #zone-itf14 {
+      display: none;
+    }
+
+    body.pallet-mode .zone-data {
+      padding: 20px 0;
+      border-bottom: 1.5px solid #000;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    body.pallet-mode .zone-data .grid-cell {
+      padding: 12px;
+      border-right: 1.5px solid #000;
+      border-bottom: 1.5px solid #000;
+    }
+
+    body.pallet-mode .zone-data .grid-cell:nth-child(2n) {
+      border-right: none;
+    }
+
+    body.pallet-mode .zone-data .grid-cell:nth-child(n+3) {
+      border-bottom: none;
+    }
+
+    body.pallet-mode #zone-product {
+      border-bottom: 1.5px solid #000;
+      padding: 12px 16px;
+    }
+
+    body.pallet-mode #zone-gs1128 {
+      padding: 20px 0;
+      border-bottom: none;
+    }
+
+    /* ── Print Media ──────────────────────────────────────────────── */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        display: block;
+      }
+
+      #input-panel {
+        display: none !important;
+      }
+
+      /* Carton: center the 105×148mm label on an A4 sheet */
+      #preview-panel {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 210mm;
+        height: 297mm;
+        padding: 0;
+        background: none;
+        min-height: unset;
+        overflow: hidden;
+      }
+
+      #label {
+        width: 105mm;
+        min-height: 148mm;
+        box-shadow: none;
+        margin: 0;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      /* Pallet: 210mm width, A4 page */
+      body.pallet-mode #label {
+        width: 210mm;
+        min-height: unset;
+      }
+
+      body.pallet-mode #preview-panel {
+        width: 210mm;
+        height: 297mm;
+        align-items: flex-start;
+      }
+    }
+  </style>
+  <style id="dynamic-print"></style>
+</head>
+<body>
+
+  <!-- ── Left Panel: Input Form ──────────────────────────────────── -->
+  <aside id="input-panel">
+    <header>📦 Label Generator</header>
+    <div class="form-body">
+
+      <div class="field">
+        <label for="input-logo">Logo (afbeelding)</label>
+        <input type="file" id="input-logo" accept="image/*">
+        <span class="field-hint">Max aanbevolen: 2 MB</span>
+        <span class="field-error" id="err-logo">Bestand te groot (> 2 MB) — toch geladen</span>
+      </div>
+
+      <div class="field">
+        <label for="input-ean">EAN-code</label>
+        <input type="text" id="input-ean" maxlength="13" placeholder="8711731033602" autocomplete="off" spellcheck="false">
+        <span class="field-error" id="err-ean"></span>
+      </div>
+
+      <div class="field">
+        <label for="input-product">Productnaam</label>
+        <input type="text" id="input-product" placeholder="ZomerRust spray 500 ml" autocomplete="off">
+      </div>
+
+      <div class="field carton-only">
+        <label for="input-artnr">Art.nr.</label>
+        <input type="text" id="input-artnr" placeholder="1103360" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="field carton-only">
+        <label for="input-qty">Aantal (per doos)</label>
+        <input type="number" id="input-qty" min="1" placeholder="15">
+      </div>
+
+      <div class="field carton-only">
+        <label for="input-inhoud">Inhoud omschrijving</label>
+        <input type="text" id="input-inhoud" placeholder="500 ml" autocomplete="off">
+      </div>
+
+      <div class="field pallet-only">
+        <label for="input-count">Aantal (eenheden op pallet)</label>
+        <input type="number" id="input-count" min="1" placeholder="3700">
+      </div>
+
+      <div class="field">
+        <label for="input-batch">Batch</label>
+        <input type="text" id="input-batch" maxlength="20" placeholder="06022629" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="field carton-only">
+        <label for="input-proddate">Productiedatum</label>
+        <input type="date" id="input-proddate">
+        <span class="field-hint">Alleen gecodeerd in GS1-128 (AI 11)</span>
+      </div>
+
+      <div class="field carton-only">
+        <label for="input-tht">THT datum</label>
+        <input type="date" id="input-tht">
+      </div>
+
+      <div class="field pallet-only">
+        <label for="input-proddate-yymm">PROD Datum (YYMM)</label>
+        <input type="text" id="input-proddate-yymm" maxlength="4" placeholder="2601">
+        <span class="field-hint">Format: YYMM (bijvoorbeeld: 2601 = januari 2026)</span>
+      </div>
+
+      <div class="field carton-only">
+        <label for="paper-size">Papierformaat</label>
+        <select id="paper-size">
+          <option value="a4">A4 (label gecentreerd)</option>
+          <option value="a6">A6 (105 × 148 mm)</option>
+        </select>
+      </div>
+
+    </div>
+    <button type="button" id="print-btn">Label afdrukken</button>
+    <div class="action-btns">
+      <button type="button" id="save-btn">💾 Opslaan</button>
+      <button type="button" id="open-btn">📂 Openen</button>
+    </div>
+    <input type="file" id="open-file" accept=".json" style="display:none">
+  </aside>
+
+  <!-- ── Right Panel: Label Preview ─────────────────────────────── -->
+  <main id="preview-panel">
+    <div id="label">
+
+      <!-- Carton mode zones (shown by default) -->
+      <div class="label-zone carton-only" id="zone-logo">
+        <img id="logo-img" src="" alt="Logo">
+        <span id="logo-placeholder">[ Logo ]</span>
+      </div>
+
+      <!-- Shared: Product name zone (used in both modes) -->
+      <div class="label-zone" id="zone-product">
+        <div id="product-name">—</div>
+      </div>
+
+      <!-- Carton: Inhoud zone -->
+      <div class="label-zone carton-only" id="zone-inhoud">
+        <span id="inhoud-label">Inhoud:</span>
+        <span id="inhoud-value">—</span>
+      </div>
+
+      <!-- Carton: Batch / THT zone -->
+      <div class="label-zone carton-only" id="zone-batch-tht">
+        <div class="grid-cell">
+          <div class="grid-cell-label">Batch:</div>
+          <div class="grid-cell-value" id="val-batch">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label" id="label-tht">THT:</div>
+          <div class="grid-cell-value" id="val-tht">—</div>
+        </div>
+      </div>
+
+      <!-- Carton: EAN / Art.nr. zone -->
+      <div class="label-zone carton-only" id="zone-ean-art">
+        <div class="grid-cell">
+          <div class="grid-cell-label">EAN-code:</div>
+          <div class="grid-cell-value" id="val-ean">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">Art.nr.:</div>
+          <div class="grid-cell-value" id="val-artnr">—</div>
+        </div>
+      </div>
+
+      <!-- Pallet: Data grid zone (2x2: Content/Count/PROD/Batch) -->
+      <div class="pallet-only zone-data" id="zone-data">
+        <div class="grid-cell">
+          <div class="grid-cell-label">Content</div>
+          <div class="grid-cell-value" id="val-gtin14">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">Count</div>
+          <div class="grid-cell-value" id="val-count">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">PROD (YYMM)</div>
+          <div class="grid-cell-value" id="val-prod">—</div>
+        </div>
+        <div class="grid-cell">
+          <div class="grid-cell-label">Batch</div>
+          <div class="grid-cell-value" id="val-batch-pallet">—</div>
+        </div>
+      </div>
+
+      <!-- Shared: GS1-128 barcode zone -->
+      <div class="label-zone" id="zone-gs1128">
+        <div id="gs1128-container"></div>
+        <div id="gs1128-text"></div>
+        <div id="gs1128-warning">⚠ Ongeldige EAN-13</div>
+      </div>
+
+      <!-- Carton: ITF-14 barcode zone -->
+      <div class="label-zone carton-only" id="zone-itf14">
+        <div id="itf14-container"></div>
+        <div id="itf14-text"></div>
+        <div id="itf14-warning">⚠ Ongeldige EAN-13</div>
+      </div>
+
+    </div><!-- #label -->
+  </main>
+
+  <!-- App Footer -->
+  <footer id="app-footer">
+    Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>
+  </footer>
+
+  <!-- bwip-js CDN: gs1-128 + itf14 with proper bearer bars and FNC1 -->
+  <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
+
+  <script>
+    // ── Brand Configuration ───────────────────────────────────────
+    const BRAND_CONFIG = {
+      ecostyle: {
+        name: 'ECOSTYLE',
+        logoSrc: 'images/Logo_ECOstyle_black.jpg',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      },
+      vitalstyle: {
+        name: 'VITALstyle',
+        logoSrc: 'images/Vitalstyle_logo_zw.jpg',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      },
+      azstyle: {
+        name: 'AZ STYLE',
+        logoSrc: 'images/Logo_AZstyle_black.jpg',
+        footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>'
+      }
+    };
+
+    // ── Detect brand from URL ─────────────────────────────────────
+    function getBrandFromURL() {
+      // Search the full URL (pathname + search + hash) so we catch all
+      // GitHub Pages SPA routing formats: /vitalstyle, /?vitalstyle, /?/vitalstyle
+      const fullUrl = (window.location.pathname + window.location.search + window.location.hash).toLowerCase();
+      if (fullUrl.includes('ecostyle')) return 'ecostyle';
+      if (fullUrl.includes('vitalstyle')) return 'vitalstyle';
+      if (fullUrl.includes('azstyle')) return 'azstyle';
+
+      // If 404.html redirected an unknown sub-path → show 404 page
+      if ((new URLSearchParams(window.location.search)).get('/') !== null) {
+        return null;
+      }
+      // Direct unknown path beyond root
+      const pathname = window.location.pathname.replace(/\/$/, '');
+      if (pathname !== '' && pathname !== '/') {
+        return null;
+      }
+      return 'eurostyle'; // default (root URL)
+    }
+
+    // ── Apply brand settings ──────────────────────────────────────
+    function applyBrandSettings(brand) {
+      const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
+      const isPallet = document.body.classList.contains('pallet-mode');
+
+      // Clean up URL for SPA routing (remove ?/brand query param, restore clean /brand path)
+      const searchParams = new URLSearchParams(window.location.search);
+      const spaPath = searchParams.get('/');
+      if (spaPath && window.history.replaceState) {
+        const cleanSpa = spaPath.startsWith('/') ? spaPath : '/' + spaPath; // '/vitalstyle'
+        window.history.replaceState(null, null, cleanSpa);
+      }
+
+      // Update page title
+      const modeText = isPallet ? 'Pallet' : 'Doos';
+      const barcodeText = isPallet ? 'GS1-128' : 'ITF-14 / GS1-128';
+      document.title = `${config.name} ${modeText} Label Generator — ${barcodeText}`;
+
+      // Update header (only in carton mode; pallet mode header set in DOMContentLoaded)
+      if (!isPallet) {
+        document.querySelector('#input-panel header').textContent = `📦 ${config.name} Doos Label Generator`;
+      }
+
+      // Update footer
+      document.getElementById('app-footer').innerHTML = config.footer;
+
+      // Set default logo image (carton mode only)
+      if (!isPallet) {
+        const logoPlaceholder = document.getElementById('logo-placeholder');
+        const logoImg = document.getElementById('logo-img');
+
+        // Only set default logo if no custom logo is uploaded
+        if (logoImg.style.display === 'none' || !logoImg.src || logoImg.src.includes('data:') === false) {
+          if (config.logoSrc) {
+            logoImg.src = config.logoSrc;
+            logoImg.style.display = 'block';
+            logoPlaceholder.style.display = 'none';
+          } else {
+            logoPlaceholder.textContent = config.name;
+            logoPlaceholder.style.display = 'block';
+            logoImg.style.display = 'none';
+          }
+        }
+      }
+    }
+    function gs1CheckDigit(digits13) {
+      // digits13: string of exactly 13 digits (left-to-right)
+      // positions 0,2,4,... × 3; positions 1,3,5,... × 1
+      let sum = 0;
+      for (let i = 0; i < 13; i++) {
+        const multiplier = (i % 2 === 0) ? 3 : 1;
+        sum += parseInt(digits13[i]) * multiplier;
+      }
+      return (10 - (sum % 10)) % 10;
+    }
+
+    function buildGTIN14(ean13, pi) {
+      // ean13: 13-digit string; pi: packaging indicator digit (0 or 1)
+      const ean12 = ean13.slice(0, 12);          // strip EAN-13 check digit
+      const base13 = String(pi) + ean12;          // prepend packaging indicator
+      const check = gs1CheckDigit(base13);
+      return base13 + String(check);              // 14-digit GTIN-14
+    }
+
+    // ── Utility: Date formatting ──────────────────────────────────
+    function dateToYYMMDD(dateStr) {
+      // dateStr: "YYYY-MM-DD" → "YYMMDD"
+      if (!dateStr) return '';
+      const [y, m, d] = dateStr.split('-');
+      return y.slice(2) + m + d;
+    }
+
+    function dateToDDMMYYYY(dateStr) {
+      // dateStr: "YYYY-MM-DD" → "DD-MM-YYYY"
+      if (!dateStr) return '—';
+      const [y, m, d] = dateStr.split('-');
+      return `${d}-${m}-${y}`;
+    }
+
+    function yymm2yymmdd(yymm) {
+      // "2601" → "260101" (add day = 01)
+      if (!yymm || yymm.length !== 4) return '';
+      return yymm + '01';
+    }
+
+    // ── Utility: GS1-128 data builder for bwip-js code128 + parsefnc ───
+    // ^FNC1 = FNC1 function character; parsefnc:true tells bwip-js to encode it
+    // GS1-128 rule: FNC1 required after every variable-length AI except the last field
+    // For carton mode: uses thtDate, prodDate (date objects)
+    // For pallet mode: uses prodYYMM (YYMM string, converted to YYMMDD01)
+    function buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch, prodYYMM) {
+      let data = '^FNC1';                          // leading FNC1 → identifies as GS1-128
+      data += '02' + gtin14_pi0;                  // AI(02): GTIN-14, fixed 14 digits
+      if (qty) {
+        data += '37' + qty;                       // AI(37): variable-length count
+        if (thtDate || prodDate || prodYYMM || batch)
+          data += '^FNC1';                        // FNC1 separator: scanner needs this to
+      }                                           //   find where variable qty ends
+      if (thtDate)  data += '15' + dateToYYMMDD(thtDate);   // AI(15): fixed 6 digits
+      if (prodDate) data += '11' + dateToYYMMDD(prodDate);  // AI(11): fixed 6 digits
+      if (prodYYMM) data += '11' + yymm2yymmdd(prodYYMM);   // AI(11): fixed 6 digits (pallet)
+      if (batch)    data += '10' + batch;         // AI(10): variable-length, last → no FNC1
+      return data;
+    }
+
+    function buildGS1128HumanReadable(gtin14_pi0, qty, thtDate, prodDate, batch, prodYYMM) {
+      // Format with parentheses around AIs and spaces for readability
+      const g = gtin14_pi0;
+      // Format GTIN: "0 8711731 03360 2" style
+      const gFormatted = `${g[0]} ${g.slice(1,8)} ${g.slice(8,13)} ${g[13]}`;
+      let parts = [`(02) ${gFormatted}`];
+      if (qty) parts.push(`(37) ${qty}`);
+      if (thtDate) parts.push(`(15) ${dateToYYMMDD(thtDate)}`);
+      if (prodDate) parts.push(`(11) ${dateToYYMMDD(prodDate)}`);
+      if (prodYYMM) parts.push(`(11) ${yymm2yymmdd(prodYYMM)}`);
+      if (batch) parts.push(`(10) ${batch}`);
+      return parts.join(' ');
+    }
+
+    // ── EAN-13 validation ─────────────────────────────────────────
+    function validateEAN13(ean) {
+      if (!/^\d{13}$/.test(ean)) return 'invalid'; // not 13 digits
+      // GS1 check digit: weights 1,3,1,3,... over first 12 digits
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(ean[i]) * (i % 2 === 0 ? 1 : 3);
+      }
+      const check = (10 - (sum % 10)) % 10;
+      return check === parseInt(ean[12]) ? 'ok' : 'check-error';
+    }
+
+    // ── Main: updateLabel ─────────────────────────────────────────
+    function updateLabel() {
+      const isPallet = document.body.classList.contains('pallet-mode');
+      const ean = document.getElementById('input-ean').value.trim();
+      const product = document.getElementById('input-product').value.trim();
+      const batch = document.getElementById('input-batch').value.trim();
+
+      // Shared elements
+      document.getElementById('product-name').textContent = product || '—';
+
+      // ── Carton-specific fields ──
+      if (!isPallet) {
+        const artnr = document.getElementById('input-artnr').value.trim();
+        const qty = document.getElementById('input-qty').value.trim();
+        const inhoud = document.getElementById('input-inhoud').value.trim();
+        const prodDate = document.getElementById('input-proddate').value;
+        const thtDate = document.getElementById('input-tht').value;
+
+        // Inhoud display
+        const inhoudVal = (qty && inhoud) ? `${qty} x ${inhoud}` : (qty || inhoud || '—');
+        document.getElementById('inhoud-value').textContent = inhoudVal;
+
+        // Batch, THT, EAN, Art.nr.
+        document.getElementById('val-batch').textContent = batch || '—';
+        const thtLabelEl = document.getElementById('label-tht');
+        if (thtDate) {
+          thtLabelEl.textContent = 'THT:';
+          document.getElementById('val-tht').textContent = dateToDDMMYYYY(thtDate);
+        } else {
+          thtLabelEl.textContent = 'PROD:';
+          document.getElementById('val-tht').textContent = prodDate ? dateToDDMMYYYY(prodDate) : '—';
+        }
+        document.getElementById('val-ean').textContent = ean || '—';
+        document.getElementById('val-artnr').textContent = artnr || '—';
+
+        // Render both barcodes for carton
+        renderCartonBarcodes(ean, qty, thtDate, prodDate, batch);
+      }
+      // ── Pallet-specific fields ──
+      else {
+        const count = document.getElementById('input-count').value.trim();
+        const prodYYMM = document.getElementById('input-proddate-yymm').value.trim();
+
+        // Pallet grid display
+        document.getElementById('val-count').textContent = count || '—';
+        document.getElementById('val-prod').textContent = prodYYMM || '—';
+        document.getElementById('val-batch-pallet').textContent = batch || '—';
+
+        // Render GS1-128 barcode for pallet (no ITF-14)
+        renderPalletBarcode(ean, count, prodYYMM, batch);
+      }
+    }
+
+    // ── Barcode rendering for carton mode (GS1-128 + ITF-14) ──
+    function renderCartonBarcodes(ean, qty, thtDate, prodDate, batch) {
+      const eanInput = document.getElementById('input-ean');
+      const errEan = document.getElementById('err-ean');
+      const gs1Warn = document.getElementById('gs1128-warning');
+      const itfWarn = document.getElementById('itf14-warning');
+      const gs1Container = document.getElementById('gs1128-container');
+      const itfContainer = document.getElementById('itf14-container');
+      const gs1Text = document.getElementById('gs1128-text');
+      const itfText = document.getElementById('itf14-text');
+
+      eanInput.classList.remove('invalid', 'warn');
+      errEan.classList.remove('visible');
+      errEan.textContent = '';
+      gs1Warn.style.display = 'none';
+      itfWarn.style.display = 'none';
+
+      const eanStatus = ean.length > 0 ? validateEAN13(ean) : 'empty';
+
+      if (eanStatus === 'invalid') {
+        eanInput.classList.add('invalid');
+        errEan.textContent = '⚠ Ongeldige EAN-13 (geen 13 cijfers)';
+        errEan.classList.add('visible');
+        gs1Warn.style.display = 'block';
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        itfWarn.style.display = 'block';
+        itfContainer.innerHTML = '';
+        itfText.textContent = '';
+        return;
+      }
+
+      if (eanStatus === 'check-error') {
+        eanInput.classList.add('warn');
+        errEan.textContent = '⚠ Controlecijfer onjuist';
+        errEan.classList.add('visible');
+      }
+
+      if (eanStatus === 'empty') {
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        itfContainer.innerHTML = '';
+        itfText.textContent = '';
+        return;
+      }
+
+      // Build GTIN-14s
+      const gtin14_pi0 = buildGTIN14(ean, 0); // for GS1-128
+      const gtin14_pi1 = buildGTIN14(ean, 1); // for ITF-14
+
+      // Render GS1-128
+      gs1Container.innerHTML = '';
+      gs1Warn.style.display = 'none';
+      try {
+        const svgStr = bwipjs.toSVG({
+          bcid: 'code128',
+          text: buildGS1128BwipData(gtin14_pi0, qty, thtDate, prodDate, batch),
+          parsefnc: true,
+          scale: 2,
+          height: 25,
+          includetext: false,
+        });
+        gs1Container.innerHTML = svgStr;
+        const svgEl = gs1Container.querySelector('svg');
+        if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
+      } catch (e) {
+        console.error('GS1-128 render error:', e);
+        gs1Warn.style.display = 'block';
+        gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
+      }
+
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, qty, thtDate, prodDate, batch);
+
+      // Render ITF-14
+      itfContainer.innerHTML = '';
+      try {
+        const svgStr = bwipjs.toSVG({
+          bcid: 'itf14',
+          text: gtin14_pi1,
+          scale: 2,
+          height: 20,
+          includetext: false,
+        });
+        itfContainer.innerHTML = svgStr;
+        const svgEl = itfContainer.querySelector('svg');
+        if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
+      } catch (e) {
+        console.error('ITF-14 render error:', e);
+      }
+      itfText.textContent = gtin14_pi1;
+    }
+
+    // ── Barcode rendering for pallet mode (GS1-128 only) ──
+    function renderPalletBarcode(ean, count, prodYYMM, batch) {
+      const eanInput = document.getElementById('input-ean');
+      const errEan = document.getElementById('err-ean');
+      const gs1Warn = document.getElementById('gs1128-warning');
+      const gs1Container = document.getElementById('gs1128-container');
+      const gs1Text = document.getElementById('gs1128-text');
+
+      eanInput.classList.remove('invalid', 'warn');
+      errEan.classList.remove('visible');
+      errEan.textContent = '';
+      gs1Warn.style.display = 'none';
+
+      const eanStatus = ean.length > 0 ? validateEAN13(ean) : 'empty';
+
+      if (eanStatus === 'invalid') {
+        eanInput.classList.add('invalid');
+        errEan.textContent = '⚠ Ongeldige EAN-13 (geen 13 cijfers)';
+        errEan.classList.add('visible');
+        gs1Warn.style.display = 'block';
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      if (eanStatus === 'check-error') {
+        eanInput.classList.add('warn');
+        errEan.textContent = '⚠ Controlecijfer onjuist';
+        errEan.classList.add('visible');
+      }
+
+      if (eanStatus === 'empty') {
+        gs1Container.innerHTML = '';
+        gs1Text.textContent = '';
+        document.getElementById('val-gtin14').textContent = '—';
+        return;
+      }
+
+      // Build GTIN-14 (PI=0 for pallet)
+      const gtin14_pi0 = buildGTIN14(ean, 0);
+      document.getElementById('val-gtin14').textContent = gtin14_pi0;
+
+      // Render GS1-128
+      gs1Container.innerHTML = '';
+      gs1Warn.style.display = 'none';
+      try {
+        const svgStr = bwipjs.toSVG({
+          bcid: 'code128',
+          text: buildGS1128BwipData(gtin14_pi0, count, null, null, batch, prodYYMM),
+          parsefnc: true,
+          scale: 2,
+          height: 25,
+          includetext: false,
+        });
+        gs1Container.innerHTML = svgStr;
+        const svgEl = gs1Container.querySelector('svg');
+        if (svgEl) svgEl.style.cssText = 'width:100%;height:auto;display:block;';
+      } catch (e) {
+        console.error('GS1-128 render error:', e);
+        gs1Warn.style.display = 'block';
+        gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
+      }
+
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, null, null, batch, prodYYMM);
+    }
+
+    // ── Logo loader ───────────────────────────────────────────────
+    document.getElementById('input-logo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        // No file selected - restore brand logo
+        const brand = getBrandFromURL();
+        applyBrandSettings(brand);
+        return;
+      }
+      const errLogo = document.getElementById('err-logo');
+      errLogo.style.display = file.size > 2 * 1024 * 1024 ? 'block' : 'none';
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const img = document.getElementById('logo-img');
+        const ph  = document.getElementById('logo-placeholder');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+        ph.style.display  = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ── Wire all inputs to updateLabel ────────────────────────────
+    const inputFields = [
+      'input-ean', 'input-product', 'input-batch',        // shared
+      'input-artnr', 'input-qty', 'input-inhoud',        // carton-specific
+      'input-proddate', 'input-tht',                      // carton-specific
+      'input-count', 'input-proddate-yymm'                // pallet-specific
+    ];
+    inputFields.forEach(id => {
+      const elem = document.getElementById(id);
+      if (elem) {
+        elem.addEventListener('input', updateLabel);
+        elem.addEventListener('change', updateLabel);
+      }
+    });
+
+    // ── Print button ──────────────────────────────────────────────
+    document.getElementById('print-btn').addEventListener('click', () => {
+      const paperSize = document.getElementById('paper-size').value;
+      const dynStyle  = document.getElementById('dynamic-print');
+
+      if (paperSize === 'a6') {
+        dynStyle.textContent = `
+          @media print {
+            @page { size: 105mm 148mm; margin: 0; }
+            /* Same flex-centering approach as A4 — avoids flex-shrink misplacing barcodes */
+            #preview-panel {
+              display: flex !important;
+              justify-content: center !important;
+              align-items: flex-start !important;
+              width: 105mm !important;
+              height: 148mm !important;
+              padding: 10mm !important;
+              background: none !important;
+              min-height: unset !important;
+              overflow: hidden !important;
+            }
+            /* width: 85mm = original intent (10mm margins each side on 105mm page).
+               NO fixed height — lets content flow naturally so SVGs are never squished. */
+            #label {
+              width: 85mm !important;
+              min-height: unset !important;
+              box-shadow: none !important;
+              margin: 0 !important;
+            }
+            /* Compact layout to fit all content within 128mm (148mm - 2×10mm margin) */
+            #zone-logo        { padding: 3px 0 !important; min-height: 28px !important; }
+            #logo-img         { max-height: 28px !important; }
+            #zone-product     { padding: 3px 10px !important; }
+            #product-name     { font-size: 22px !important; line-height: 1.05 !important; }
+            #zone-inhoud      { padding: 2px 10px !important; }
+            #inhoud-label,
+            #inhoud-value     { font-size: 14px !important; }
+            .grid-cell        { padding: 2px 8px !important; }
+            .grid-cell-label  { font-size: 9px !important; }
+            .grid-cell-value  { font-size: 14px !important; }
+            #zone-gs1128      { padding: 3px 8px 2px !important; }
+            #zone-itf14       { padding: 3px 8px 2px !important; }
+            #gs1128-text      { font-size: 7px !important; }
+            #itf14-text       { font-size: 9px !important; }
+          }
+        `;
+      } else {
+        dynStyle.textContent = ''; // A4: use default rules
+      }
+
+      window.print();
+      window.addEventListener('afterprint', () => { dynStyle.textContent = ''; }, { once: true });
+    });
+
+    // ── Save label data to JSON file ──────────────────────────────
+    document.getElementById('save-btn').addEventListener('click', function() {
+      const isPallet = document.body.classList.contains('pallet-mode');
+      const product = document.getElementById('input-product').value.trim();
+      const batch = document.getElementById('input-batch').value.trim();
+
+      let data = {
+        mode: isPallet ? 'pallet' : 'carton',
+        ean: document.getElementById('input-ean').value,
+        product: product,
+        batch: batch,
+        brand: getBrandFromURL(),
+      };
+
+      if (isPallet) {
+        // Pallet mode data
+        data.count = document.getElementById('input-count').value;
+        data.proddate = document.getElementById('input-proddate-yymm').value;
+      } else {
+        // Carton mode data
+        const logoImg = document.getElementById('logo-img');
+        const logoData = (logoImg.style.display !== 'none' && logoImg.src.startsWith('data:'))
+                         ? logoImg.src : '';
+        data.artnr = document.getElementById('input-artnr').value;
+        data.qty = document.getElementById('input-qty').value;
+        data.inhoud = document.getElementById('input-inhoud').value;
+        data.proddate = document.getElementById('input-proddate').value;
+        data.tht = document.getElementById('input-tht').value;
+        data.papersize = document.getElementById('paper-size').value;
+        data.logo = logoData;
+      }
+
+      // Filename: product name + batch number
+      const namePart = (product || 'label').replace(/[\\/:*?"<>|]/g, '').trim().replace(/\s+/g, '_');
+      const filename = (namePart + (batch ? '_' + batch : '')) || 'label';
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Open / load a saved label JSON file ───────────────────────
+    document.getElementById('open-btn').addEventListener('click', function() {
+      document.getElementById('open-file').value = '';   // allow re-opening same file
+      document.getElementById('open-file').click();
+    });
+
+    document.getElementById('open-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const d = JSON.parse(ev.target.result);
+          const isPallet = d.mode === 'pallet';
+
+          // Shared fields
+          document.getElementById('input-ean').value = d.ean || '';
+          document.getElementById('input-product').value = d.product || '';
+          document.getElementById('input-batch').value = d.batch || '';
+
+          if (isPallet) {
+            // Load pallet-specific fields
+            document.getElementById('input-count').value = d.count || '';
+            document.getElementById('input-proddate-yymm').value = d.proddate || '';
+          } else {
+            // Load carton-specific fields
+            document.getElementById('input-artnr').value = d.artnr || '';
+            document.getElementById('input-qty').value = d.qty || '';
+            document.getElementById('input-inhoud').value = d.inhoud || '';
+            document.getElementById('input-proddate').value = d.proddate || '';
+            document.getElementById('input-tht').value = d.tht || '';
+            if (d.papersize) document.getElementById('paper-size').value = d.papersize;
+
+            // Restore logo if saved, otherwise apply brand logo
+            if (d.logo && d.logo.startsWith('data:')) {
+              const img = document.getElementById('logo-img');
+              const ph = document.getElementById('logo-placeholder');
+              img.src = d.logo;
+              img.style.display = 'block';
+              ph.style.display = 'none';
+            } else {
+              const brand = d.brand || getBrandFromURL();
+              applyBrandSettings(brand);
+            }
+          }
+
+          updateLabel();
+        } catch(err) {
+          alert('Fout bij openen bestand: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // ── Optional: Simple analytics (no cookies, just page view count) ───
+    function logPageView() {
+      // Optional: Send a minimal page view event to your analytics
+      // This is non-intrusive and respects privacy
+      if (navigator.sendBeacon && typeof fetch !== 'undefined') {
+        const params = new URLSearchParams({
+          event: 'page_view',
+          timestamp: new Date().toISOString(),
+          referrer: document.referrer || '(direct)'
+        });
+        // Uncomment below when you have an analytics endpoint at labels.eurostyle.nl
+        // fetch('/api/analytics', { method: 'POST', body: params, keepalive: true }).catch(() => {});
+      }
+    }
+
+    // ── Show 404 page ─────────────────────────────────────────────
+    function show404() {
+      document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#333;background:#f5f5f5;">
+          <div style="font-size:80px;margin-bottom:16px;">🔍</div>
+          <h1 style="font-size:2em;margin:0 0 12px;">Pagina niet gevonden</h1>
+          <p style="color:#666;margin:0 0 24px;">De URL die je hebt ingevoerd bestaat niet.</p>
+          <p style="font-size:13px;color:#999;margin:0 0 32px;">Controleer of de link klopt.</p>
+          <a href="/ecostyle" style="padding:10px 24px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;font-size:14px;">Ga naar de generator</a>
+        </div>`;
+    }
+
+    // ── Pre-fill reference test data on load ──────────────────────
+    // Debug: log immediately on script load
+    console.log('[LABEL-GEN] Script loaded');
+    console.log('[LABEL-GEN] location.href:', window.location.href);
+    console.log('[LABEL-GEN] location.search:', window.location.search);
+    console.log('[LABEL-GEN] location.pathname:', window.location.pathname);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('[LABEL-GEN] DOMContentLoaded fired');
+
+      // Apply brand settings based on URL
+      const brand = getBrandFromURL();
+      if (brand === null) { show404(); return; }
+      applyBrandSettings(brand);
+
+      // Check if pallet mode (URL contains 'pallet' in href, search, or pathname)
+      const isPallet = window.location.href.includes('pallet') ||
+                       window.location.search.includes('pallet') ||
+                       window.location.pathname.includes('pallet');
+      console.log('[LABEL-GEN] href includes pallet:', window.location.href.includes('pallet'));
+      console.log('[LABEL-GEN] search includes pallet:', window.location.search.includes('pallet'));
+      console.log('[LABEL-GEN] pathname includes pallet:', window.location.pathname.includes('pallet'));
+      console.log('[LABEL-GEN] isPallet:', isPallet);
+
+      // Set mode class on body
+      if (isPallet) {
+        document.body.classList.add('pallet-mode');
+        console.log('[LABEL-GEN] ✅ Added pallet-mode class to body');
+        console.log('[LABEL-GEN] body.className:', document.body.className);
+        // Update header for pallet mode
+        document.querySelector('#input-panel header').textContent = `📦 ${brand === null ? 'Pallet' : brand.toUpperCase()} Pallet Label Generator`;
+      } else {
+        console.log('[LABEL-GEN] ℹ️ Carton mode detected');
+      }
+
+      if (isPallet) {
+        // Pallet label defaults
+        document.getElementById('input-ean').value = '8711731033602';
+        document.getElementById('input-product').value = 'ZomerRust spray pallet';
+        document.getElementById('input-count').value = '3700';
+        document.getElementById('input-proddate-yymm').value = '2601';
+        document.getElementById('input-batch').value = '06022629';
+      } else {
+        // Carton label defaults
+        document.getElementById('input-ean').value = '8711731033602';
+        document.getElementById('input-product').value = 'ZomerRust spray 500 ml';
+        document.getElementById('input-artnr').value = '1103360';
+        document.getElementById('input-qty').value = '15';
+        document.getElementById('input-inhoud').value = '500 ml';
+        document.getElementById('input-batch').value = '06022629';
+      }
+      updateLabel();
+      // Optional: Log page view (uncomment when analytics ready)
+      // logPageView();
+    });
+  </script>
+</body>
+</html>
