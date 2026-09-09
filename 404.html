@@ -3,16 +3,19 @@
 <head>
   <meta charset="utf-8">
   <title>404 - Not Found</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 40px; }
-    h1 { color: #333; }
-    a { color: #0066cc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
 </head>
 <body>
-  <h1>404 - Pagina niet gevonden</h1>
-  <p>De URL die je hebt gevraagd bestaat niet.</p>
-  <p><a href="/ecostyle/">← Carton Label Generator</a> | <a href="/ecostyle/pallet/">← Pallet Label Generator</a></p>
+  <script>
+    const pathSegmentsToKeep = 0; // custom domain, no repo name
+    const l = window.location;
+    l.replace(
+      l.protocol + '//' +
+      l.hostname + ':' +
+      l.port + '/?/' +
+      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/') +
+      (l.search ? '&' + l.search.slice(1) : '') +
+      l.hash
+    );
+  </script>
 </body>
 </html>
