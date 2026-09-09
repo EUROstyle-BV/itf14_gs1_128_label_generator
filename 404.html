@@ -2,17 +2,25 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>404 - Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Pagina niet gevonden</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 40px; background: #f5f5f5; }
+    h1 { color: #333; }
+    p { color: #666; }
+    a { color: #0066cc; text-decoration: none; margin: 0 10px; }
+    a:hover { text-decoration: underline; }
+    .button { display: inline-block; padding: 10px 20px; background: #0066cc; color: white; border-radius: 4px; margin: 10px; }
+    .button:hover { background: #0052a3; }
+  </style>
 </head>
 <body>
-  <script>
-    const pathSegmentsToKeep = 0; // custom domain, no repo name
-    const l = window.location;
-    const pathParts = l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/');
-    const port = l.port ? ':' + l.port : '';
-    const newUrl = l.protocol + '//' + l.hostname + port + '/?/' + pathParts +
-                   (l.search ? '&' + l.search.slice(1) : '') + l.hash;
-    l.replace(newUrl);
-  </script>
+  <h1>404 - Pagina niet gevonden</h1>
+  <p>De URL die je hebt gevraagd bestaat niet.</p>
+  <p>
+    <a href="/" class="button">← Home</a>
+    <a href="/ecostyle" class="button">← Carton Label</a>
+    <a href="/ecostyle/pallet" class="button">← Pallet Label</a>
+  </p>
 </body>
 </html>
