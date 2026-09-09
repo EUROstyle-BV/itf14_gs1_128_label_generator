@@ -2,40 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>EUROstyle Label Generator</title>
-  <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // MIT License
-    // https://github.com/rafgraph/spa-github-pages
-    // This script takes the current url and converts the path and query
-    // string into just a query string, and then redirects the browser
-    // to the new url with only a query string and hash fragment,
-    // e.g., https://www.foo.tld/one/two?a=b&c=d#qwe, becomes
-    // https://www.foo.tld/?/one/two&a=b~and~c=d#qwe
-    // Note: this 404.html file must be at least 512 bytes for it to work
-    // with Internet Explorer (it is currently > 512 bytes)
-
-    // Custom domain (labels.eurostyle.nl) — no repo-name segment in path.
-    // Set pathSegmentsToKeep to 0 so e.g. /vitalstyle becomes /?/vitalstyle
-    // Route to pallet.html or index.html based on path
-    var pathSegmentsToKeep = 0;
-
-    var l = window.location;
-    var pathStr = l.pathname;
-    var isPallet = pathStr.includes('/pallet');
-    var targetFile = isPallet ? 'pallet.html' : 'index.html';
-    var cacheBust = '&_t=' + new Date().getTime();
-
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/' + targetFile + '?/' +
-      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-      cacheBust +
-      l.hash
-    );
-  </script>
+  <title>EUROstyle Label Generator - Page Not Found</title>
 </head>
 <body>
+  <h1>Pagina niet gevonden</h1>
+  <p>De pagina die je hebt gezocht bestaat niet.</p>
+  <p><a href="/ecostyle">← Ga naar de carton label generator</a></p>
+  <p><a href="/ecostyle/pallet">← Ga naar de pallet label generator</a></p>
+  <!--
+    This 404.html is kept simple because we use direct file routing.
+    Files are served directly at their paths:
+    - /ecostyle/index.html for carton mode
+    - /ecostyle/pallet/index.html for pallet mode
+    - /vitalstyle/index.html and /vitalstyle/pallet/index.html
+    - /azstyle/index.html and /azstyle/pallet/index.html
+    No SPA routing redirect needed.
+  -->
 </body>
 </html>
