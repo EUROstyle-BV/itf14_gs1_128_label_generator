@@ -771,6 +771,22 @@
       return 'eurostyle'; // default (root URL)
     }
 
+    function getModeFromURL() {
+      const searchParams = new URLSearchParams(window.location.search);
+      const rawSearch = window.location.search.replace(/^\?/, '');
+      const legacySpaPath = rawSearch.startsWith('/') ? rawSearch.split('&')[0] : '';
+      const routeParts = [
+        window.location.pathname,
+        window.location.hash,
+        searchParams.get('/') || '',
+        legacySpaPath,
+        ...searchParams.values()
+      ];
+      return routeParts.some(part => /(^|[\\/])pallet([\\/?#]|$)/i.test(part))
+        ? 'pallet'
+        : 'carton';
+    }
+
     // ── Apply brand settings ──────────────────────────────────────
     function applyBrandSettings(brand) {
       const config = BRAND_CONFIG[brand] || { name: 'EUROSTYLE', logoText: 'EUROSTYLE', footer: 'Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>' };
@@ -1349,23 +1365,18 @@
     document.addEventListener('DOMContentLoaded', () => {
       console.log('[LABEL-GEN] DOMContentLoaded fired');
 
+      // Determine mode before applying brand settings so titles and branding match the route.
+      const mode = getModeFromURL();
+      const isPallet = mode === 'pallet';
+      if (isPallet) document.body.classList.add('pallet-mode');
+
       // Apply brand settings based on URL
       const brand = getBrandFromURL();
       if (brand === null) { show404(); return; }
       applyBrandSettings(brand);
 
-      // Check if pallet mode (URL contains 'pallet' in href, search, or pathname)
-      const isPallet = window.location.href.includes('pallet') ||
-                       window.location.search.includes('pallet') ||
-                       window.location.pathname.includes('pallet');
-      console.log('[LABEL-GEN] href includes pallet:', window.location.href.includes('pallet'));
-      console.log('[LABEL-GEN] search includes pallet:', window.location.search.includes('pallet'));
-      console.log('[LABEL-GEN] pathname includes pallet:', window.location.pathname.includes('pallet'));
-      console.log('[LABEL-GEN] isPallet:', isPallet);
-
-      // Set mode class on body
+      console.log('[LABEL-GEN] mode:', mode);
       if (isPallet) {
-        document.body.classList.add('pallet-mode');
         console.log('[LABEL-GEN] ✅ Added pallet-mode class to body');
         console.log('[LABEL-GEN] body.className:', document.body.className);
         // Update header for pallet mode
