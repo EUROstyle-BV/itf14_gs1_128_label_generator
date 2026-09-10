@@ -43,8 +43,11 @@ P0-items eerst oplossen voordat structurele refactoring of nieuwe functionalitei
 - **Gereed wanneer:** HTML, JavaScript en assetverwijzingen voor alle entrypoints worden gecontroleerd en één echte fout de deployment blokkeert.
 - **Status:** Afgerond op 10 september 2026.
 - **Wijziging:** `ci-cd.yml` valideert alle HTML-bestanden, gebruikt geen `continue-on-error`, verwijdert de onjuiste `node -c index.html`-controle en maakt verplichte deploymentbestanden expliciet.
-- **Validatie:** Workflowstructuur, YAML-syntax, verplichte workflowvelden en blokkerende shellcommando's zijn gecontroleerd; de volledige diff staat in de release-evidence.
-- **Open controle:** De workflow moet nog door GitHub Actions op Ubuntu worden uitgevoerd om de definitieve tooloutput van `html-validate` en ESLint te bevestigen.
+- **Validatie:** Workflowstructuur, YAML-syntax, verplichte workflowvelden en blokkerende shellcommando's zijn gecontroleerd. GitHub Actions-run `34450632598` bevestigde dat Ubuntu, Node-installatie en dependency-installatie slagen; de eerste volledige HTML-validatie vond 36 bestaande fouten.
+- **Vervolgvalidatie:** De logo-afbeeldingen gebruiken een geldige transparante `data:image`-placeholder als initiële `src`; de drie merk-palletbestanden hebben `style#dynamic-print` in de `<head>`. De stijlregels zijn vastgelegd als uitgeschakelde regels in `.htmlvalidate.json`.
+- **Validatieresultaat:** Volledige `html-validate` over alle tien HTML-entrypoints geeft exitcode 0 met geen resterende validatorfouten.
+- **Logo-regressie opgelost:** De vier cartonvarianten gebruiken nu `data-logo-source` met de statussen `placeholder`, `brand` en `custom`; merklogo-initialisatie, custom upload en JSON-import/export onderscheiden deze bronnen expliciet.
+- **Functionele validatie:** Browsercontrole moet bevestigen dat ECOstyle, VITALstyle en AZ STYLE het merklogo tonen en dat custom logo-upload en JSON round-trip de bronstatus behouden.
 
 ### P0-04 - Leg barcode-regressietests vast
 
