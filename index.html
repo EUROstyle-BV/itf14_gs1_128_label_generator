@@ -772,19 +772,13 @@
     }
 
     function getModeFromURL() {
-      const searchParams = new URLSearchParams(window.location.search);
-      const rawSearch = window.location.search.replace(/^\?/, '');
-      const legacySpaPath = rawSearch.startsWith('/') ? rawSearch.split('&')[0] : '';
-      const routeParts = [
-        window.location.pathname,
-        window.location.hash,
-        searchParams.get('/') || '',
-        legacySpaPath,
-        ...searchParams.values()
-      ];
-      return routeParts.some(part => /(^|[\\/])pallet([\\/?#]|$)/i.test(part))
-        ? 'pallet'
-        : 'carton';
+      const routeText = (
+        window.location.pathname +
+        window.location.search +
+        window.location.hash
+      ).toLowerCase();
+
+      return routeText.includes('/pallet') ? 'pallet' : 'carton';
     }
 
     // ── Apply brand settings ──────────────────────────────────────
