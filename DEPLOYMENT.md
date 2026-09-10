@@ -1,5 +1,7 @@
 # Deployment & Infrastructure
 
+> **Actuele bron:** GitHub Pages publiceert vanaf `gh-pages` met folder `/` (root). Oude tekst waarin `main` als Pages-source wordt genoemd is historische informatie en geldt niet als actuele configuratie.
+
 ## Project Location
 
 **Local Network Path (Development):**
@@ -43,8 +45,10 @@ eurostyle-bv.github.io
 **GitHub Pages Settings:**
 - Repository: `EUROstyle-BV/itf14_gs1_128_label_generator`
 - Custom domain: `labels.eurostyle.nl`
-- Branch: `main` (source)
-- HTTPS: Enabled (via GitHub)
+- Source: **Deploy from a branch**
+- Branch: `gh-pages`
+- Folder: `/` (root)
+- HTTPS: Enabled via GitHub Pages when certificate status is approved
 
 **SPA Routing:**
 - `404.html` performs client-side URL rewriting for brand variant routing
@@ -81,11 +85,9 @@ git push origin main
 ```
 
 ### 3. GitHub Pages Deployment
-After pushing to `main`, GitHub automatically deploys:
-- Files are served from the repository root
-- `index.html` is served for all paths (via `404.html` SPA routing)
-- Custom domain `labels.eurostyle.nl` is automatically updated
-- Typically live within 30-60 seconds
+After pushing to `main`, GitHub Actions validates the repository and publishes a temporary `deploy/` directory to `gh-pages`. GitHub Pages then serves the root of `gh-pages`.
+
+The custom domain is updated only after the Pages build completes. Propagation and CDN caching can delay visible changes.
 
 ---
 
@@ -149,5 +151,5 @@ All team members can access the project via the network share:
 
 ---
 
-**Version:** 1.0  
+**Version:** 2.0
 **Last Updated:** September 2026

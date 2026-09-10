@@ -1,5 +1,93 @@
 # ITF-14 / GS1-128 Barcode Label Generator
 
+Statische browserapplicatie voor logistieke carton- en palletlabels met GS1-128 en ITF-14. Alle verwerking gebeurt lokaal in de browser. Er is geen backend, database of buildserver nodig.
+
+## Doel en modi
+
+De applicatie ondersteunt:
+
+- cartonlabels met GS1-128 en ITF-14;
+- palletlabels met GS1-128;
+- live formulier-naar-preview updates;
+- JSON-export en JSON-import;
+- A4- en A6-printconfiguratie voor cartonlabels;
+- EUROSTYLE, ECOstyle, VITALstyle en AZ STYLE branding.
+
+Cartonlabels bevatten product-, EAN-, artikel-, aantal-, batch- en datumgegevens. Palletlabels bevatten Content/GTIN-14, Count, PROD (YYMM), Batch en één GS1-128-barcode.
+
+## Routes
+
+| Merk | Carton | Pallet |
+|---|---|---|
+| EUROSTYLE | `/` | `/pallet.html` |
+| ECOstyle | `/ecostyle/` | `/ecostyle/pallet/` |
+| VITALstyle | `/vitalstyle/` | `/vitalstyle/pallet/` |
+| AZ STYLE | `/azstyle/` | `/azstyle/pallet/` |
+
+Productiehost: `https://labels.eurostyle.nl`.
+
+## Projectstructuur
+
+```text
+.
+├── index.html                 # gecombineerde carton/palletapplicatie
+├── pallet.html                # standalone palletapplicatie
+├── 404.html                   # GitHub Pages route-forwarding
+├── images/                    # merklogo's
+├── ecostyle/                  # ECOstyle entrypoints
+├── vitalstyle/                # VITALstyle entrypoints
+├── azstyle/                   # AZ STYLE entrypoints
+├── .github/workflows/         # CI/CD
+├── .htmlvalidate.json         # HTML-validatorconfiguratie
+├── CNAME                      # labels.eurostyle.nl
+├── mission.md                # functionele barcode- en printrequirements
+├── BACKLOG_V2.md              # productiebacklog
+└── docs/                      # technische en operationele documentatie
+```
+
+## Lokaal starten
+
+Gebruik voor correcte relatieve assets een lokale HTTP-server:
+
+```powershell
+python -m http.server 8765
+```
+
+Open daarna bijvoorbeeld `http://localhost:8765/`, `http://localhost:8765/ecostyle/` of `http://localhost:8765/ecostyle/pallet/`.
+
+## Functioneel testen
+
+Gebruik de referentiedata uit [docs/TESTPLAN.md](docs/TESTPLAN.md). Controleer route, mode, titel, merklogo, barcode-SVG's, console, failed requests, JSON round-trip en printregels. Fysieke printer- en scannerchecks blijven handmatige productiechecks.
+
+Referentiewaarden:
+
+```text
+EAN-13: 8711731033602
+GS1-128 GTIN-14 PI=0: 08711731033602
+ITF-14 PI=1: 18711731033609
+```
+
+## Publiceren
+
+De publicatieketen is:
+
+```text
+main -> tijdelijke deploy/ -> gh-pages / root -> GitHub Pages
+```
+
+GitHub Pages gebruikt `gh-pages` met folder `/` als bron. Het custom domain staat in [CNAME](CNAME). Zie [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) voor validatie, rollback en live-controles.
+
+## Technische documentatie
+
+- [Architectuur](docs/ARCHITECTURE.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Testplan](docs/TESTPLAN.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Operations](docs/OPERATIONS.md)
+- [Security](SECURITY.md)
+- [V2-backlog](BACKLOG_V2.md)
+- [Functionele missie](mission.md)
+
 Two single-file, self-contained HTML/CSS/JavaScript web applications for generating professional shipping and logistics barcode labels in real time. No build tools, no npm, no server required.
 
 ## Overview

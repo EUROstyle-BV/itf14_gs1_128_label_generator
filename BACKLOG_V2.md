@@ -61,6 +61,16 @@ P0-items eerst oplossen voordat structurele refactoring of nieuwe functionalitei
 
 P1-items volgen direct na de P0-stabilisatie en moeten voor de structurele migratie zijn afgedekt.
 
+### P1-00 - Los GitHub Pages deploymentmismatch op
+
+- **Reden:** `main` en `origin/gh-pages` bevatten de actuele `getModeFromURL()`, terwijl de live custom domain tijdens de analyse een oudere `index.html` serveerde. Pages-buildmetadata verwees naar orphan commit `1a65b1f`.
+- **Risico:** Productiegebruikers krijgen oude routing- en labelcode ondanks groene CI en een actuele deploymentbranch.
+- **Betrokken bestanden/configuratie:** GitHub Pages Settings, `gh-pages` branch, `.github/workflows/ci-cd.yml`, `CNAME`, custom domain en Pages/CDN-status.
+- **Geschatte inspanning:** 1-2 dagen inclusief Pages-validatie.
+- **Acceptatiecriteria:** Pages source is `gh-pages`/`/`; laatste Pages-build verwijst naar de actuele deployment; live `index.html` bevat `getModeFromURL()` en `const routeText`; live palletmode werkt voor alle drie merken.
+- **Status:** UNDER INVESTIGATION. De repositoryketen is gedocumenteerd; de live mismatch moet nog door de verantwoordelijke Pages-beheerder worden hersteld en geverifieerd.
+- **Rollback:** Herstel naar de vorige bekende goede `gh-pages`-deployment en documenteer de actieve build-SHA.
+
 ### P1-01 - Kies en documenteer één routingstrategie
 
 - **Reden:** De documentatie beschrijft SPA-routing via `404.html`, terwijl de huidige `404.html` een statische foutpagina is. Tegelijk bestaan fysieke merkdirectories en root-mode-detectie.
@@ -297,6 +307,33 @@ De backlog bevat bewust overlap tussen refactor, tests en validatie. Een realist
 - **Totaal inclusief volgordelijke regressie- en acceptatietijd:** ongeveer 8-12 weken
 
 De eerste productieverbeteringen zijn binnen de eerste 1-2 weken haalbaar. De volledige v2-refactor moet pas als voltooid worden beschouwd wanneer de route-, barcode-, JSON- en print-baselines automatisch worden gecontroleerd.
+
+## V2-prioriteiten na de huidige stabilisatie
+
+### P1 - Betrouwbaarheid en tests
+
+- GitHub Pages deployment mismatch oplossen en live/source-SHA's vergelijken (`P1-00`).
+- JSON-schema standaardiseren met `schemaVersion`.
+- Import/exportcompatibiliteit voor alle carton- en palletvarianten testen.
+- Browsertests voor routes, merken, mode, console, netwerk en logo's automatiseren.
+- PDF- en printregressietests toevoegen.
+- Fysieke scanneracceptatie met Zebra MC330K/DataWedge periodiek uitvoeren.
+- GitHub Pages post-deployment smokecheck automatiseren.
+
+### P2 - Onderhoudbaarheid
+
+- Inline JavaScript centraliseren.
+- Gekopieerde merk- en modecode verminderen.
+- Actions en dependencies reproduceerbaar maken met pinned versies, lockfile en bij voorkeur commit-SHA's.
+- JSON-migratielaag en gedeelde storagecode invoeren.
+- Barcode- en printlogica als afzonderlijk testbare domeinlaag organiseren.
+
+### P3 - Toekomstige verbeteringen
+
+- Overstap naar het officiële `configure-pages`/`upload-pages-artifact`/`deploy-pages`-model onderzoeken.
+- Content Security Policy en SRI voor externe CDN-dependencies invoeren.
+- Multi-label batchprinting en SSCC-18 alleen na expliciete productbeslissing toevoegen.
+- Toegankelijkheids- en performanceverbeteringen uitbreiden.
 
 ## Productiegebruik binnen EUROstyle
 
