@@ -24,15 +24,46 @@ jobs:
         run: npm install --save-dev html-validate eslint stylelint stylelint-config-standard
       
       - name: Validate HTML
-        run: npx html-validate index.html
-        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' html_files < <(
+            find . \
+              -type f \
+              -name '*.html' \
+              -not -path './node_modules/*' \
+              -print0
+          )
+
+          if [ "${#html_files[@]}" -eq 0 ]; then
+            echo "Geen HTML-bestanden gevonden."
+            exit 1
+          fi
+
+          printf 'Valideer HTML-bestanden:\n'
+          printf ' - %s\n' "${html_files[@]}"
+          npx html-validate "${html_files[@]}"
       
       - name: Lint JavaScript
-        run: npx eslint index.html --ext .html,.js
-        continue-on-error: true
-      
-      - name: Check JavaScript syntax
-        run: node -c index.html 2>/dev/null || true
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' js_files < <(
+            find . \
+              -type f \
+              \( -name '*.js' -o -name '*.mjs' \) \
+              -not -path './node_modules/*' \
+              -print0
+          )
+
+          if [ "${#js_files[@]}" -eq 0 ]; then
+            echo "Geen losse JavaScript-bestanden gevonden."
+            exit 0
+          fi
+
+          npx eslint --max-warnings=0 "${js_files[@]}"
       
       - name: Display project info
         run: |
@@ -54,21 +85,30 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build deployment content
+        shell: bash
         run: |
+          set -euo pipefail
+
           echo "📦 Checking files before deploy..."
-          ls -la | grep -E "index|pallet|ecostyle|vitalstyle|azstyle"
+
+          test -f index.html
+          test -f pallet.html
+          test -f 404.html
+          test -d images
+          test -d ecostyle
+          test -d vitalstyle
+          test -d azstyle
 
           mkdir -p deploy
           cp index.html deploy/
-          cp pallet.html deploy/ 2>/dev/null || true
-          cp 404.html deploy/ 2>/dev/null || true
-          cp -r images/ deploy/ 2>/dev/null || true
-          cp -r styles/ deploy/ 2>/dev/null || true
+          cp pallet.html deploy/
+          cp 404.html deploy/
+          cp -r images deploy/
 
           # Copy brand directories
-          if [ -d "ecostyle" ]; then cp -r ecostyle deploy/; echo "✓ Copied ecostyle"; fi
-          if [ -d "vitalstyle" ]; then cp -r vitalstyle deploy/; echo "✓ Copied vitalstyle"; fi
-          if [ -d "azstyle" ]; then cp -r azstyle deploy/; echo "✓ Copied azstyle"; fi
+          cp -r ecostyle deploy/
+          cp -r vitalstyle deploy/
+          cp -r azstyle deploy/
 
           echo "labels.eurostyle.nl" > deploy/CNAME
 

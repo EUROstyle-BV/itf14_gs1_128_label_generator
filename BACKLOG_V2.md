@@ -41,6 +41,10 @@ P0-items eerst oplossen voordat structurele refactoring of nieuwe functionalitei
 - **Betrokken bestanden:** `.github/workflows/ci-cd.yml`, `.eslintrc.json`, alle `*.html`-entrypoints.
 - **Geschatte inspanning:** 1-2 dagen.
 - **Gereed wanneer:** HTML, JavaScript en assetverwijzingen voor alle entrypoints worden gecontroleerd en één echte fout de deployment blokkeert.
+- **Status:** Afgerond op 10 september 2026.
+- **Wijziging:** `ci-cd.yml` valideert alle HTML-bestanden, gebruikt geen `continue-on-error`, verwijdert de onjuiste `node -c index.html`-controle en maakt verplichte deploymentbestanden expliciet.
+- **Validatie:** Workflowstructuur, YAML-syntax, verplichte workflowvelden en blokkerende shellcommando's zijn gecontroleerd; de volledige diff staat in de release-evidence.
+- **Open controle:** De workflow moet nog door GitHub Actions op Ubuntu worden uitgevoerd om de definitieve tooloutput van `html-validate` en ESLint te bevestigen.
 
 ### P0-04 - Leg barcode-regressietests vast
 
