@@ -4,6 +4,14 @@ Dit overzicht bevat aantoonbare functionele, deployment- en documentatiewijzigin
 
 ## 2026-09-10
 
+### Pages deployment mismatch resolved
+
+- GitHub Pages publiceerde een verouderde build.
+- De site is handmatig unpublished en daarna opnieuw gepubliceerd vanaf `gh-pages` / `(root)`.
+- De productieacceptatie is afgerond.
+- PDF-generatie, fysieke printer, fysieke barcode scanner en Exact WMS zijn handmatig gevalideerd.
+- De end-to-end-keten `Generator -> PDF -> Printer -> Label -> Scanner -> Exact WMS` is geslaagd.
+
 | Commit | Wijziging | Validatie/deploymentstatus |
 |---|---|---|
 | `57ff931` | Lege triggercommit voor Pages-publicatie na source-switch. | Gepusht naar `origin/main`; workflowrun gestart/gecontroleerd in de deploymentanalyse. |

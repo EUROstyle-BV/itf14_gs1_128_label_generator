@@ -59,6 +59,21 @@ permissions:
 
 De workflow gebruikt niet het officiële artifactmodel met `configure-pages`, `upload-pages-artifact` en `deploy-pages`.
 
+## GitHub Pages Recovery Procedure
+
+Gebruik deze procedure wanneer GitHub Pages een oude build blijft serveren terwijl `main` en `gh-pages` de actuele bestanden bevatten.
+
+1. Controleer `origin/main` en `origin/gh-pages` op `index.html`, `getModeFromURL()` en de verwachte `const routeText`.
+2. Controleer in GitHub Pages Settings dat de bron `gh-pages` met folder `/(root)` is.
+3. Controleer de actieve Pages-build en `Last deployed`-informatie.
+4. Als de actieve build aantoonbaar verouderd is, kies in Pages Settings handmatig **Unpublish**.
+5. Publiceer de site opnieuw vanaf `gh-pages` en `/(root)`.
+6. Controleer het CNAME/custom domain en wacht op DNS/CDN-propagatie.
+7. Controleer met een cachebuster de live HTML, responseheaders en `Last-Modified`.
+8. Voer de productievalidatie uit voor carton- en palletroutes.
+
+Deze herstelactie is voor de huidige release uitgevoerd. Na handmatig Unpublish en opnieuw publiceren vanaf `gh-pages` / `/(root)` werkte de site correct.
+
 ## Deploymentvalidatie
 
 Controleer vóór en na publicatie:

@@ -68,7 +68,8 @@ P1-items volgen direct na de P0-stabilisatie en moeten voor de structurele migra
 - **Betrokken bestanden/configuratie:** GitHub Pages Settings, `gh-pages` branch, `.github/workflows/ci-cd.yml`, `CNAME`, custom domain en Pages/CDN-status.
 - **Geschatte inspanning:** 1-2 dagen inclusief Pages-validatie.
 - **Acceptatiecriteria:** Pages source is `gh-pages`/`/`; laatste Pages-build verwijst naar de actuele deployment; live `index.html` bevat `getModeFromURL()` en `const routeText`; live palletmode werkt voor alle drie merken.
-- **Status:** UNDER INVESTIGATION. De repositoryketen is gedocumenteerd; de live mismatch moet nog door de verantwoordelijke Pages-beheerder worden hersteld en geverifieerd.
+- **Status:** RESOLVED. GitHub Pages is handmatig unpublished en opnieuw gepubliceerd vanaf `gh-pages` / `(root)`. Daarna was de mismatch niet meer reproduceerbaar.
+- **Productieacceptatie:** Goedgekeurd voor productiegebruik; PDF, fysieke printer, fysieke scanner en Exact WMS zijn getest.
 - **Rollback:** Herstel naar de vorige bekende goede `gh-pages`-deployment en documenteer de actieve build-SHA.
 
 ### P1-01 - Kies en documenteer één routingstrategie

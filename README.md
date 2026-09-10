@@ -26,6 +26,27 @@ Cartonlabels bevatten product-, EAN-, artikel-, aantal-, batch- en datumgegevens
 
 Productiehost: `https://labels.eurostyle.nl`.
 
+## Productieacceptatie
+
+Status:
+
+✅ Productie gereed
+
+Getest:
+
+✅ Carton labels
+✅ Pallet labels
+✅ PDF
+✅ Printer
+✅ Barcode scanners
+✅ Exact WMS
+
+De end-to-end-keten is handmatig bevestigd:
+
+```text
+Generator -> PDF -> Printer -> Label -> Scanner -> Exact WMS
+```
+
 ## Projectstructuur
 
 ```text

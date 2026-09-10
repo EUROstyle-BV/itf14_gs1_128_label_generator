@@ -2,9 +2,9 @@
 
 ## Incident summary
 
-**Status: UNDER INVESTIGATION**
+**Status: RESOLVED**
 
-De route `https://labels.eurostyle.nl/ecostyle/pallet` kwam tijdens de analyse uit op een root-`index.html` met de cartonmodus. De live runtime had geen `getModeFromURL()` en bevatte nog de oudere `window.location.href.includes('pallet')`-logica.
+De route `https://labels.eurostyle.nl/ecostyle/pallet` kwam tijdens de analyse uit op een root-`index.html` met de cartonmodus. De live runtime had geen `getModeFromURL()` en bevatte nog de oudere `window.location.href.includes('pallet')`-logica. GitHub Pages publiceerde een verouderde build.
 
 ## Impact
 
@@ -54,9 +54,9 @@ Niet definitief bewezen:
 
 ## Root cause status
 
-**UNDER INVESTIGATION**
+**RESOLVED**
 
-De repository- en workflowketen wees naar actuele `gh-pages`, maar de custom domain serveerde een oudere HTML-build. De exacte laatste oorzaak moet worden vastgesteld door Pages source, laatste build-SHA, deploymentstatus en live responseheaders op hetzelfde moment te vergelijken.
+GitHub Pages publiceerde een verouderde build. De site is handmatig unpublished en daarna opnieuw gepubliceerd vanaf `gh-pages` / `(root)`. Na deze herpublicatie was het probleem niet meer reproduceerbaar.
 
 ## Recovery procedure
 
@@ -64,10 +64,11 @@ De repository- en workflowketen wees naar actuele `gh-pages`, maar de custom dom
 2. Controleer Pages source: `gh-pages` / `/`.
 3. Controleer de laatste Pages-buildcommit.
 4. Forceer geen willekeurige broncodewijziging om cache te omzeilen.
-5. Publiceer een gecontroleerde nieuwe deployment als de actieve Pages-build oud is.
-6. Controleer live met een cachebuster.
-7. Controleer alle drie merk/palletcombinaties.
-8. Houd de vorige bekende goede `gh-pages`-SHA beschikbaar voor rollback.
+5. Als de actieve Pages-build oud is: maak de site handmatig **Unpublish**.
+6. Publiceer opnieuw vanaf `gh-pages` / `(root)`.
+7. Controleer live met een cachebuster.
+8. Controleer alle drie merk/palletcombinaties.
+9. Houd de vorige bekende goede `gh-pages`-SHA beschikbaar voor rollback.
 
 ## Validation procedure
 
@@ -102,4 +103,4 @@ Herhaal voor VITALstyle en AZ STYLE. Controleer ook de HTML-bron op `getModeFrom
 - Vergelijk live `index.html`-markers met `origin/gh-pages:index.html`.
 - Voeg browsertests voor pathname-, query- en hashrouteroutes toe.
 - Pin GitHub Actions later op volledige commit-SHA's.
-- Plan JSON-schema-, print- en scannerregressietests.
+- Plan JSON-schema- en automatische printregressietests; fysieke printer-, scanner- en Exact WMS-acceptatie is voor deze release uitgevoerd en geslaagd.

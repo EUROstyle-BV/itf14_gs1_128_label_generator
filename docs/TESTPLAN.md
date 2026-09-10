@@ -158,4 +158,23 @@ Referentie: Zebra MC330K met DataWedge.
 
 ## Huidige teststatus
 
-De uitgevoerde lokale browserchecks bevestigden routes, logo's, barcode-SVG's, console/networkstatus en JSON-export voor de geteste varianten. Print naar echte PDF, fysieke printer en fysieke scanner zijn niet volledig geautomatiseerd en blijven `BLOCKED` of `NOT TESTED` totdat handmatig uitgevoerd.
+De productieacceptatie is goedgekeurd. De volgende handmatige acceptaties zijn uitgevoerd en geslaagd:
+
+| Onderdeel | Status | Dekking |
+|---|---|---|
+| ECOstyle pallet | PASS | Palletmodus, juiste merkheader, GS1-128, productie-URL |
+| VITALstyle pallet | PASS | Palletmodus, juiste merkheader, GS1-128, productie-URL |
+| AZ STYLE pallet | PASS | Palletmodus, juiste merkheader, GS1-128, productie-URL |
+| Cartonlabels | PASS | Productie- en browsercontrole |
+| PDF-generatie | PASS | Handmatige Chrome-test |
+| Fysieke printer | PASS | Handmatige productietest |
+| Fysieke barcode scanner | PASS | Handmatige scannertest |
+| Exact WMS | PASS | Gescande gegevens verwerkt |
+
+De end-to-end-keten is bevestigd:
+
+```text
+Generator -> PDF -> Printer -> Label -> Scanner -> Exact WMS
+```
+
+Automatische browserchecks bevestigden daarnaast routes, logo's, barcode-SVG's, console/networkstatus en JSON-export. Een native file chooser kan in sommige browserautomatiseringsruns niet volledig worden gevuld; de handmatige productieacceptatie compenseert die automatiseringsbeperking.
