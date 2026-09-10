@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 - Pagina niet gevonden</title>
+  <script>
+    const locationState = window.location;
+    const requestedPath = locationState.pathname.replace(/^\//, '');
+    const query = locationState.search ? `&${locationState.search.slice(1)}` : '';
+    const redirectUrl = `${locationState.origin}/?/${requestedPath}${query}${locationState.hash}`;
+    locationState.replace(redirectUrl);
+  </script>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 40px; background: #f5f5f5; }
     h1 { color: #333; }
