@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZ STYLE Pallet Label Generator — GS1-128</title>
+  <title>Pallet Label Generator — GS1-128</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -63,8 +63,7 @@
     }
 
     .field input[type="text"],
-    .field input[type="number"],
-    .field select {
+    .field input[type="number"] {
       background: #2a2d35;
       border: 1px solid #3a3d45;
       border-radius: 4px;
@@ -77,8 +76,7 @@
       width: 100%;
     }
 
-    .field input:focus,
-    .field select:focus {
+    .field input:focus {
       border-color: #4a9eff;
       box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
     }
@@ -305,7 +303,7 @@
 <body>
   <!-- Left Panel: Input Form -->
   <div id="input-panel">
-    <header>📦 AZ STYLE Pallet Label Generator</header>
+    <header>📦 Pallet Label Generator</header>
     <div class="form-body">
       <div class="field">
         <label for="input-ean">EAN-13 Code</label>
@@ -324,9 +322,9 @@
       </div>
 
       <div class="field">
-        <label for="input-proddate">PROD Date (YYMM)</label>
-        <input type="text" id="input-proddate" maxlength="4" placeholder="2601">
-        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">Format: YYMM (e.g., 2601 = Jan 2026)</div>
+        <label for="input-proddate">Productiedatum</label>
+        <input type="date" id="input-proddate">
+        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">Alleen gecodeerd in GS1-128 (AI 11)</div>
       </div>
 
       <div class="field">
@@ -351,8 +349,8 @@
     </div>
 
     <div id="app-footer">
-      AZ STYLE Pallet Label<br>
-      Powered by <a href="https://eurostyle.nl" target="_blank" style="color: #2563eb; text-decoration: none;">EUROstyle</a>
+      Pallet Label Generator<br>
+      <span id="brand-footer">EUROSTYLE</span>
     </div>
   </div>
 
@@ -398,6 +396,32 @@
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
 
   <script>
+    // Pallet Label Generator — GS1-128 barcode with 2×2 data grid (A4 only)
+    // Shared GS1 utilities with carton labels (gs1CheckDigit, buildGTIN14, buildGS1128BwipData)
+    // Brand variants: ecostyle, vitalstyle, azstyle via URL routing
+    // ── Brand Configuration ──────────────────────────────────────
+    const brandConfig = {
+      ecostyle: { name: 'ECOSTYLE', logoSrc: 'images/Logo_ECOstyle_black.jpg', footer: 'ECOSTYLE' },
+      vitalstyle: { name: 'VITALstyle', logoSrc: 'images/Vitalstyle_logo_zw.jpg', footer: 'VITALstyle' },
+      azstyle: { name: 'AZ STYLE', logoSrc: 'images/Logo_AZstyle_black.jpg', footer: 'AZ STYLE' }
+    };
+
+    function getBrandFromURL() {
+      const url = window.location.pathname + window.location.search + window.location.hash;
+      if (url.includes('ecostyle')) return 'ecostyle';
+      if (url.includes('vitalstyle')) return 'vitalstyle';
+      if (url.includes('azstyle')) return 'azstyle';
+      return 'eurostyle';
+    }
+
+    function applyBrandSettings(brand) {
+      const config = brandConfig[brand] || { name: 'EUROSTYLE', footer: 'EUROSTYLE' };
+      document.title = `${config.name} Pallet Label Generator`;
+      document.querySelector('#input-panel header').textContent = `📦 ${config.name} Pallet Label Generator`;
+      document.getElementById('brand-footer').textContent = config.footer;
+    }
+
+    // ── GS1 Utilities (shared with carton labels) ────────────────
     function gs1CheckDigit(digits13) {
       let sum = 0;
       for (let i = 0; i < 13; i++) {
@@ -424,45 +448,52 @@
       return check === parseInt(ean[12]) ? 'ok' : 'check-error';
     }
 
-    function yymm2yymmdd(yymm) {
-      if (!yymm || yymm.length !== 4) return '';
-      return yymm + '01';
+    function dateToYYMMDD(dateStr) {
+      // "2026-01-15" → "260115" (YYMMDD format)
+      if (!dateStr || dateStr.length !== 10) return '';
+      const [year, month, day] = dateStr.split('-');
+      const yy = year.slice(-2);
+      return yy + month + day;
     }
 
-    function buildGS1128BwipData(gtin14_pi0, count, prodYYMM, batch) {
+    function buildGS1128BwipData(gtin14_pi0, count, prodDate, batch) {
       let data = '^FNC1';
       data += '02' + gtin14_pi0;
       if (count) {
         data += '37' + count;
-        if (prodYYMM || batch) data += '^FNC1';
+        if (prodDate || batch) data += '^FNC1';
       }
-      if (prodYYMM) data += '11' + yymm2yymmdd(prodYYMM);
+      if (prodDate) data += '11' + dateToYYMMDD(prodDate);
       if (batch) data += '10' + batch;
       return data;
     }
 
-    function buildGS1128HumanReadable(gtin14_pi0, count, prodYYMM, batch) {
+    function buildGS1128HumanReadable(gtin14_pi0, count, prodDate, batch) {
       const g = gtin14_pi0;
       const gFormatted = `${g[0]} ${g.slice(1,8)} ${g.slice(8,13)} ${g[13]}`;
       let parts = [`(02) ${gFormatted}`];
       if (count) parts.push(`(37) ${count}`);
-      if (prodYYMM) parts.push(`(11) ${yymm2yymmdd(prodYYMM)}`);
+      if (prodDate) parts.push(`(11) ${dateToYYMMDD(prodDate)}`);
       if (batch) parts.push(`(10) ${batch}`);
       return parts.join(' ');
     }
 
+    // ── Update Label ─────────────────────────────────────────────
     function updateLabel() {
       const ean = document.getElementById('input-ean').value.trim();
       const product = document.getElementById('input-product').value.trim();
       const count = document.getElementById('input-count').value.trim();
-      const prodYYMM = document.getElementById('input-proddate').value.trim();
+      const prodDate = document.getElementById('input-proddate').value.trim();
       const batch = document.getElementById('input-batch').value.trim();
 
+      // Update display
       document.getElementById('product-name').textContent = product || '—';
       document.getElementById('val-count').textContent = count || '—';
-      document.getElementById('val-prod').textContent = prodYYMM || '—';
+      const prodDisplay = prodDate ? dateToYYMMDD(prodDate) : '—';
+      document.getElementById('val-prod').textContent = prodDisplay;
       document.getElementById('val-batch').textContent = batch || '—';
 
+      // EAN validation & barcode rendering
       const eanInput = document.getElementById('input-ean');
       const errEan = document.getElementById('err-ean');
       const gs1Warn = document.getElementById('gs1128-warning');
@@ -500,15 +531,17 @@
         return;
       }
 
+      // Build GTIN-14 (PI=0 for pallet content)
       const gtin14_pi0 = buildGTIN14(ean, 0);
       document.getElementById('val-gtin14').textContent = gtin14_pi0;
 
+      // Render GS1-128 barcode
       gs1Container.innerHTML = '';
       gs1Warn.style.display = 'none';
       try {
         const svgStr = bwipjs.toSVG({
           bcid: 'code128',
-          text: buildGS1128BwipData(gtin14_pi0, count, prodYYMM, batch),
+          text: buildGS1128BwipData(gtin14_pi0, count, prodDate, batch),
           parsefnc: true,
           scale: 2,
           height: 25,
@@ -523,7 +556,7 @@
         gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
       }
 
-      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, prodYYMM, batch);
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, prodDate, batch);
     }
 
     // ── Paper size handler ──────────────────────────────────────────
@@ -539,10 +572,13 @@
       }
     }
 
-    ['input-ean', 'input-product', 'input-count', 'input-proddate', 'input-batch'].forEach(id => {
+    // ── Wire inputs to updateLabel ───────────────────────────────
+    ['input-ean', 'input-product', 'input-count', 'input-batch'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateLabel);
       document.getElementById(id).addEventListener('change', updateLabel);
     });
+
+    document.getElementById('input-proddate').addEventListener('change', updateLabel);
 
     document.getElementById('paper-size').addEventListener('change', handlePaperSizeChange);
 
@@ -609,7 +645,7 @@
         ean: document.getElementById('input-ean').value,
         product: document.getElementById('input-product').value,
         count: document.getElementById('input-count').value,
-        prodDate: document.getElementById('input-proddate').value,
+        productionDate: document.getElementById('input-proddate').value,
         batch: document.getElementById('input-batch').value,
         paperSize: document.getElementById('paper-size').value,
       };
@@ -639,7 +675,8 @@
             document.getElementById('input-ean').value = data.ean || '';
             document.getElementById('input-product').value = data.product || '';
             document.getElementById('input-count').value = data.count || '';
-            document.getElementById('input-proddate').value = data.prodDate || '';
+            // Support both old (prodDate) and new (productionDate) field names
+            document.getElementById('input-proddate').value = data.productionDate || data.prodDate || '';
             document.getElementById('input-batch').value = data.batch || '';
             if (data.paperSize) {
               document.getElementById('paper-size').value = data.paperSize;
@@ -657,11 +694,14 @@
 
     // ── Initialize ───────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
+      const brand = getBrandFromURL();
+      applyBrandSettings(brand);
+
       // Pre-fill test data
       document.getElementById('input-ean').value = '8711731033602';
       document.getElementById('input-product').value = 'ZomerRust spray pallet';
       document.getElementById('input-count').value = '3700';
-      document.getElementById('input-proddate').value = '2601';
+      document.getElementById('input-proddate').value = '2026-01-06';
       document.getElementById('input-batch').value = '06022629';
       document.getElementById('paper-size').value = 'a4';
 
