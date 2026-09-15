@@ -221,6 +221,7 @@ Simply navigate to the desired brand URL. The application will automatically:
    - Count (units on pallet)
    - PROD Date (YYMM format, e.g., 2601 = January 2026)
    - Batch Number
+   - **Paper Size:** Choose A4 or A6 (dropdown)
 
 3. **View the label** (right panel):
    The pallet label preview updates automatically. Shows:
@@ -231,9 +232,9 @@ Simply navigate to the desired brand URL. The application will automatically:
    - GS1-128 barcode
 
 4. **Print or Export:**
-   - **Print:** Click "Label afdrukken" (always prints on A4)
-   - **Save:** Click "Opslaan" to download label data as JSON
-   - **Load:** Click "Openen" to load a previously saved pallet label
+   - **Print:** Click "Label afdrukken" → prints on selected paper size (A4 or A6)
+   - **Save:** Click "Opslaan" to download label data as JSON (includes paper size preference)
+   - **Load:** Click "Openen" to load a previously saved pallet label (restores paper size)
 
 ## Technical Stack
 

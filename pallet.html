@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- UPDATED: 2026-09-09 13:00 — ZomerRust spray pallet defaults -->
+<!-- Pallet Label Generator — GS1-128 barcode with A4/A6 paper size support -->
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
@@ -557,6 +557,8 @@
     }
 
     // ── Paper size handler ──────────────────────────────────────────
+    // Toggles A6 preview mode when user selects different paper size.
+    // A4: normal 210mm layout; A6: compact 85mm layout with responsive fonts.
     function handlePaperSizeChange() {
       const paperSize = document.getElementById('paper-size').value;
       const previewPanel = document.getElementById('preview-panel');
@@ -576,6 +578,8 @@
     document.getElementById('paper-size').addEventListener('change', handlePaperSizeChange);
 
     // ── Print button ─────────────────────────────────────────────
+    // Injects dynamic @page CSS based on selected paper size before printing.
+    // A4: full-width label on A4 page; A6: compact label on 105×148mm page.
     document.getElementById('print-btn').addEventListener('click', () => {
       const paperSize = document.getElementById('paper-size').value;
       const dynStyle = document.getElementById('dynamic-print');
@@ -630,6 +634,7 @@
     });
 
     // ── Save button ──────────────────────────────────────────────
+    // Exports all form data (including paperSize preference) as JSON.
     document.getElementById('save-btn').addEventListener('click', () => {
       const data = {
         ean: document.getElementById('input-ean').value,
@@ -650,6 +655,7 @@
     });
 
     // ── Load button ──────────────────────────────────────────────
+    // Imports JSON file and restores all form fields including paperSize.
     document.getElementById('load-btn').addEventListener('click', () => {
       const input = document.createElement('input');
       input.type = 'file';

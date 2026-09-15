@@ -370,13 +370,23 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 
 ### Stap 12 — Pallet Labels (GS1-128 only) ✓
 - **Behofte:** Aparte pallet labels voor pallets (anders dan carton labels).
-- **Layout:** A4-gecentreerd (altijd, geen A6 optie). 2×2 data grid: Content (GTIN-14 PI=0), Count, PROD (YYMM), Batch.
+- **Layout:** 2×2 data grid: Content (GTIN-14 PI=0), Count, PROD (YYMM), Batch.
+- **Papierformaat:** A4 (standaard) of A6 (105×148mm) — selectie via dropdown (net als carton labels).
+  - A4: 210mm breed label, gecentreerd op A4-pagina
+  - A6: 85mm breed label, gecentreerd op 105×148mm pagina met 10mm marges
 - **Barcode:** GS1-128 alleen (geen ITF-14). Dezelfde `code128 + parsefnc` logica als carton labels.
 - **PROD format:** Input als YYMM (4 digits); omgerekend naar YYMMDD (dag = 01) voor AI(11).
 - **Gedeelde code:** `gs1CheckDigit()`, `buildGTIN14(ean13, 0)`, `buildGS1128BwipData()` — identiek aan carton labels.
 - **Implementatie:** Separate `pallet.html` (geen code duplication; both are single-file apps).
 - **URL routing:** `/pallet` sub-path via `404.html` SPA routing → `pallet.html`.
 - **Brand variants:** Dezelfde support als carton labels (ecostyle, vitalstyle, azstyle).
+
+### Stap 13 — Pallet Labels A4/A6 Support ✓
+- **Behofte:** Pallet labels moeten dezelfde papierformaat-flexibiliteit bieden als carton labels.
+- **Implementatie:** Dropdown "Papierformaat" in invoerpaneel, dynamische CSS-injectie voor print, save/load papiersize.
+- **CSS responsive:** A6-mode schakelt kleinere fonten in (h1: 28px, grid-value: 14px, barcode-text: 7px).
+- **JSON schema:** `paperSize: "a4"` of `"a6"` opgeslagen in exports; oude bestanden fallback naar A4.
+- **Bestanden:** pallet.html + alle merkdirectories (ecostyle/pallet/, vitalstyle/pallet/, azstyle/pallet/).
 
 ---
 
