@@ -253,6 +253,39 @@
       display: none;
     }
 
+    /* A6 mode: 85mm label on 105×148mm page with 10mm margins */
+    #preview-panel.a6-mode {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0;
+    }
+
+    #preview-panel.a6-mode #label {
+      width: 85mm;
+      min-height: unset;
+      padding: 10mm;
+      margin-top: 10mm;
+    }
+
+    #preview-panel.a6-mode .zone-header h1 {
+      font-size: 28px;
+    }
+
+    #preview-panel.a6-mode .data-grid {
+      font-size: 13px;
+    }
+
+    #preview-panel.a6-mode .grid-cell-value {
+      font-size: 14px;
+    }
+
+    #preview-panel.a6-mode #gs1128-text {
+      font-size: 7px;
+    }
+
     @media print {
       body { background: white; }
       #input-panel { display: none; }
@@ -297,6 +330,14 @@
       <div class="field">
         <label for="input-batch">Batch Number</label>
         <input type="text" id="input-batch" maxlength="20" placeholder="e.g., 1001B26">
+      </div>
+
+      <div class="field">
+        <label for="paper-size">Papierformaat</label>
+        <select id="paper-size">
+          <option value="a4">A4 (label gecentreerd)</option>
+          <option value="a6">A6 (105 × 148 mm)</option>
+        </select>
       </div>
 
       <div class="button-group">
@@ -515,33 +556,75 @@
       gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, prodYYMM, batch);
     }
 
+    // ── Paper size handler ──────────────────────────────────────────
+    function handlePaperSizeChange() {
+      const paperSize = document.getElementById('paper-size').value;
+      const previewPanel = document.getElementById('preview-panel');
+      if (paperSize === 'a6') {
+        previewPanel.classList.add('a6-mode');
+      } else {
+        previewPanel.classList.remove('a6-mode');
+      }
+    }
+
     // ── Wire inputs to updateLabel ───────────────────────────────
     ['input-ean', 'input-product', 'input-count', 'input-proddate', 'input-batch'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateLabel);
       document.getElementById(id).addEventListener('change', updateLabel);
     });
 
+    document.getElementById('paper-size').addEventListener('change', handlePaperSizeChange);
+
     // ── Print button ─────────────────────────────────────────────
     document.getElementById('print-btn').addEventListener('click', () => {
+      const paperSize = document.getElementById('paper-size').value;
       const dynStyle = document.getElementById('dynamic-print');
-      dynStyle.textContent = `
-        @media print {
-          @page { size: A4 portrait; margin: 0; }
-          #preview-panel {
-            width: 100%;
-            padding: 0;
-            background: white;
-            justify-content: center;
-            align-items: flex-start;
+
+      if (paperSize === 'a6') {
+        dynStyle.textContent = `
+          @media print {
+            @page { size: 105mm 148mm; margin: 0; }
+            #preview-panel {
+              width: 100%;
+              padding: 0;
+              background: white;
+              justify-content: center;
+              align-items: flex-start;
+            }
+            #label {
+              width: 85mm;
+              padding: 10mm;
+              box-shadow: none;
+              margin: 0;
+              min-height: unset;
+            }
+            .zone-header h1 { font-size: 28px; }
+            .data-grid { font-size: 13px; }
+            .grid-cell-value { font-size: 14px; }
+            #gs1128-text { font-size: 7px; }
           }
-          #label {
-            width: 210mm;
-            padding: 40px;
-            box-shadow: none;
-            margin: 0;
+        `;
+      } else {
+        dynStyle.textContent = `
+          @media print {
+            @page { size: A4 portrait; margin: 0; }
+            #preview-panel {
+              width: 100%;
+              padding: 0;
+              background: white;
+              justify-content: center;
+              align-items: flex-start;
+            }
+            #label {
+              width: 210mm;
+              padding: 40px;
+              box-shadow: none;
+              margin: 0;
+            }
           }
-        }
-      `;
+        `;
+      }
+
       setTimeout(() => window.print(), 100);
       setTimeout(() => { dynStyle.textContent = ''; }, 1000);
     });
@@ -554,6 +637,7 @@
         count: document.getElementById('input-count').value,
         prodDate: document.getElementById('input-proddate').value,
         batch: document.getElementById('input-batch').value,
+        paperSize: document.getElementById('paper-size').value,
       };
       const filename = `pallet_${data.batch || data.product || 'export'}.json`;
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -582,6 +666,10 @@
             document.getElementById('input-count').value = data.count || '';
             document.getElementById('input-proddate').value = data.prodDate || '';
             document.getElementById('input-batch').value = data.batch || '';
+            if (data.paperSize) {
+              document.getElementById('paper-size').value = data.paperSize;
+              handlePaperSizeChange();
+            }
             updateLabel();
           } catch (err) {
             alert('Fout bij laden van bestand: ' + err.message);
@@ -603,7 +691,10 @@
       document.getElementById('input-count').value = '3700';
       document.getElementById('input-proddate').value = '2601';
       document.getElementById('input-batch').value = '06022629';
+      document.getElementById('paper-size').value = 'a4';
+
       updateLabel();
+      handlePaperSizeChange();
     });
   </script>
 </body>
