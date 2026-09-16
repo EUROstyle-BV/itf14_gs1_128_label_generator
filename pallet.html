@@ -402,11 +402,18 @@
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
 
   <script>
-    // Pallet Label Generator — GS1-128 barcode with 2×2 data grid (A4/A6)
-    // Features: THT datum (Best-Before Date, AI 15), Production date (AI 11), dynamic PROD/THT label switch
-    // All label data stored/loaded as JSON with backward compatibility for old exports
-    // Shared GS1 utilities with carton labels (gs1CheckDigit, buildGTIN14, buildGS1128BwipData)
-    // Brand variants: ecostyle, vitalstyle, azstyle via URL routing
+    // ════════════════════════════════════════════════════════════════════════════════════
+    // Pallet Label Generator — GS1-128 barcode only (no ITF-14)
+    // ════════════════════════════════════════════════════════════════════════════════════
+    // Single-column app: left panel (form inputs), right panel (live label preview)
+    // Layout: 2×2 data grid (Content/Count/PROD/Batch) + centered header + GS1-128 barcode
+    // Print support: A4 (210mm wide, full page) or A6 (Zebra 105×148mm, 85mm label)
+    // Dates: THT (AI 15, best-before) + Production (AI 11, YYMMDD); dynamic label switching
+    // Storage: Save/load as JSON with backward compatibility for old exports
+    // Shared code: gs1CheckDigit, buildGTIN14, buildGS1128BwipData with carton labels
+    // Brand routing: URL-based (ecostyle / vitalstyle / azstyle)
+    // ════════════════════════════════════════════════════════════════════════════════════
+
     // ── Brand Configuration ──────────────────────────────────────
     const brandConfig = {
       ecostyle: { name: 'ECOSTYLE', logoSrc: 'images/Logo_ECOstyle_black.jpg', footer: 'ECOSTYLE' },
@@ -594,15 +601,16 @@
     }
 
     // ── Paper size handler ──────────────────────────────────────────
-    // Toggles A6 preview mode when user selects different paper size.
-    // A4: normal 210mm layout; A6: compact 85mm layout with responsive fonts.
+    // Toggles A6 preview mode in browser (CSS class .a6-mode).
+    // A4: normal 210mm label on A4 page (preview unmodified)
+    // A6: compact 85mm label on 105×148mm page with reduced fonts (via CSS responsive class)
     function handlePaperSizeChange() {
       const paperSize = document.getElementById('paper-size').value;
       const previewPanel = document.getElementById('preview-panel');
       if (paperSize === 'a6') {
-        previewPanel.classList.add('a6-mode');
+        previewPanel.classList.add('a6-mode'); // Applies .a6-mode CSS rules (smaller fonts, padding)
       } else {
-        previewPanel.classList.remove('a6-mode');
+        previewPanel.classList.remove('a6-mode'); // Restores default 210mm layout
       }
     }
 
@@ -619,7 +627,9 @@
 
     // ── Print button ─────────────────────────────────────────────
     // Injects dynamic @page CSS based on selected paper size before printing.
-    // A4: full-width label on A4 page; A6: compact label on 105×148mm page.
+    // A4: 210mm label centered on A4 page (margins auto via flexbox)
+    // A6: 85mm label on 105×148mm page with 10mm margins (matches Zebra printer format)
+    // Dynamic CSS is cleared after print via afterprint event to restore preview mode.
     document.getElementById('print-btn').addEventListener('click', () => {
       const paperSize = document.getElementById('paper-size').value;
       const dynStyle = document.getElementById('dynamic-print');
@@ -627,7 +637,9 @@
       if (paperSize === 'a6') {
         dynStyle.textContent = `
           @media print {
-            @page { size: 100mm 150mm; margin: 0; }
+            @page { size: 105mm 148mm; margin: 0; }
+            /* A6: Flex-centered on 105×148mm page with 10mm padding.
+               Label itself: 85mm (105mm - 2×10mm). Use flexbox (not block) to center. */
             #preview-panel {
               width: 100%;
               padding: 0;
@@ -636,7 +648,7 @@
               align-items: flex-start;
             }
             #label {
-              width: 80mm;
+              width: 85mm;
               padding: 10mm;
               box-shadow: none;
               margin: 0;
@@ -652,6 +664,7 @@
         dynStyle.textContent = `
           @media print {
             @page { size: A4 portrait; margin: 0; }
+            /* A4: Full A4 page (210×297mm). Label is 210mm wide; centered via flexbox. */
             #preview-panel {
               width: 100%;
               padding: 0;
@@ -670,6 +683,7 @@
       }
 
       setTimeout(() => window.print(), 100);
+      // Clear injected print styles after print dialog closes (or times out)
       setTimeout(() => { dynStyle.textContent = ''; }, 1000);
     });
 
