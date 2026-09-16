@@ -328,6 +328,12 @@
       </div>
 
       <div class="field">
+        <label for="input-tht">THT datum</label>
+        <input type="date" id="input-tht">
+        <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">Gecodeerd in GS1-128 (AI 15)</div>
+      </div>
+
+      <div class="field">
         <label for="input-batch">Batch Number</label>
         <input type="text" id="input-batch" maxlength="20" placeholder="e.g., 1001B26">
       </div>
@@ -374,8 +380,8 @@
             <div class="grid-cell-value" id="val-count">—</div>
           </div>
           <div class="grid-cell">
-            <div class="grid-cell-label">PROD (YYMM)</div>
-            <div class="grid-cell-value" id="val-prod">—</div>
+            <div class="grid-cell-label" id="label-prod-tht">PROD (YYMM)</div>
+            <div class="grid-cell-value" id="val-prod-tht">—</div>
           </div>
           <div class="grid-cell">
             <div class="grid-cell-label">Batch</div>
@@ -456,23 +462,32 @@
       return yy + month + day;
     }
 
-    function buildGS1128BwipData(gtin14_pi0, count, prodDate, batch) {
+    function dateToDDMMYYYY(dateStr) {
+      // "2026-01-15" → "15-01-2026" (DD-MM-YYYY format for display)
+      if (!dateStr || dateStr.length !== 10) return '';
+      const [year, month, day] = dateStr.split('-');
+      return day + '-' + month + '-' + year;
+    }
+
+    function buildGS1128BwipData(gtin14_pi0, count, thtDate, prodDate, batch) {
       let data = '^FNC1';
       data += '02' + gtin14_pi0;
       if (count) {
         data += '37' + count;
-        if (prodDate || batch) data += '^FNC1';
+        if (thtDate || prodDate || batch) data += '^FNC1';
       }
+      if (thtDate) data += '15' + dateToYYMMDD(thtDate);
       if (prodDate) data += '11' + dateToYYMMDD(prodDate);
       if (batch) data += '10' + batch;
       return data;
     }
 
-    function buildGS1128HumanReadable(gtin14_pi0, count, prodDate, batch) {
+    function buildGS1128HumanReadable(gtin14_pi0, count, thtDate, prodDate, batch) {
       const g = gtin14_pi0;
       const gFormatted = `${g[0]} ${g.slice(1,8)} ${g.slice(8,13)} ${g[13]}`;
       let parts = [`(02) ${gFormatted}`];
       if (count) parts.push(`(37) ${count}`);
+      if (thtDate) parts.push(`(15) ${dateToYYMMDD(thtDate)}`);
       if (prodDate) parts.push(`(11) ${dateToYYMMDD(prodDate)}`);
       if (batch) parts.push(`(10) ${batch}`);
       return parts.join(' ');
@@ -483,14 +498,25 @@
       const ean = document.getElementById('input-ean').value.trim();
       const product = document.getElementById('input-product').value.trim();
       const count = document.getElementById('input-count').value.trim();
+      const thtDate = document.getElementById('input-tht').value.trim();
       const prodDate = document.getElementById('input-proddate').value.trim();
       const batch = document.getElementById('input-batch').value.trim();
 
       // Update display
       document.getElementById('product-name').textContent = product || '—';
       document.getElementById('val-count').textContent = count || '—';
-      const prodDisplay = prodDate ? dateToYYMMDD(prodDate) : '—';
-      document.getElementById('val-prod').textContent = prodDisplay;
+
+      // PROD/THT: show THT if present, otherwise show PROD
+      const prodThtLabel = document.getElementById('label-prod-tht');
+      if (thtDate) {
+        prodThtLabel.textContent = 'THT:';
+        document.getElementById('val-prod-tht').textContent = dateToDDMMYYYY(thtDate);
+      } else {
+        prodThtLabel.textContent = 'PROD (YYMM)';
+        const prodDisplay = prodDate ? dateToYYMMDD(prodDate) : '—';
+        document.getElementById('val-prod-tht').textContent = prodDisplay;
+      }
+
       document.getElementById('val-batch').textContent = batch || '—';
 
       // EAN validation & barcode rendering
@@ -541,7 +567,7 @@
       try {
         const svgStr = bwipjs.toSVG({
           bcid: 'code128',
-          text: buildGS1128BwipData(gtin14_pi0, count, prodDate, batch),
+          text: buildGS1128BwipData(gtin14_pi0, count, thtDate, prodDate, batch),
           parsefnc: true,
           scale: 2,
           height: 25,
@@ -556,7 +582,7 @@
         gs1Warn.textContent = '⚠ GS1-128 fout: ' + (e.message || e);
       }
 
-      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, prodDate, batch);
+      gs1Text.textContent = buildGS1128HumanReadable(gtin14_pi0, count, thtDate, prodDate, batch);
     }
 
     // ── Paper size handler ──────────────────────────────────────────
@@ -579,6 +605,7 @@
     });
 
     document.getElementById('input-proddate').addEventListener('change', updateLabel);
+    document.getElementById('input-tht').addEventListener('change', updateLabel);
 
     document.getElementById('paper-size').addEventListener('change', handlePaperSizeChange);
 
@@ -646,6 +673,7 @@
         product: document.getElementById('input-product').value,
         count: document.getElementById('input-count').value,
         productionDate: document.getElementById('input-proddate').value,
+        thtDate: document.getElementById('input-tht').value,
         batch: document.getElementById('input-batch').value,
         paperSize: document.getElementById('paper-size').value,
       };
@@ -677,6 +705,7 @@
             document.getElementById('input-count').value = data.count || '';
             // Support both old (prodDate) and new (productionDate) field names
             document.getElementById('input-proddate').value = data.productionDate || data.prodDate || '';
+            document.getElementById('input-tht').value = data.thtDate || '';
             document.getElementById('input-batch').value = data.batch || '';
             if (data.paperSize) {
               document.getElementById('paper-size').value = data.paperSize;
