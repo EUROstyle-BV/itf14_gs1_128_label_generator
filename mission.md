@@ -388,6 +388,20 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 - **JSON schema:** `paperSize: "a4"` of `"a6"` opgeslagen in exports; oude bestanden fallback naar A4.
 - **Bestanden:** pallet.html + alle merkdirectories (ecostyle/pallet/, vitalstyle/pallet/, azstyle/pallet/).
 
+### Stap 14 — Pallet Labels THT Datum (AI 15) ✓
+- **Behofte:** Pallet labels moeten ook THT (Best-Before) datum kunnen opslaan en coderen.
+- **Layout:** Nieuwe input field "THT datum" (type="date"), optioneel
+- **Grid display:** Dynamische label dat schakelt tussen "THT:" (DD-MM-YYYY) en "PROD (YYMM)" (YYMMDD)
+  - Als THT ingevuld → toont "THT:" met DD-MM-YYYY format (bijv. 31-03-2028)
+  - Als alleen PROD ingevuld → toont "PROD (YYMM)" met YYMMDD format (bijv. 260106)
+  - THT heeft priority als beide ingevuld zijn
+- **GS1-128 encoding:** AI(15) toegevoegd voor Best-Before Date (6 digits YYMMDD format)
+  - Positie in barcode: AI(15) komt vóór AI(11) (production date)
+  - Format: `^FNC1 02 GTIN14 37 COUNT ^FNC1 15 YYMMDD_THT 11 YYMMDD_PROD 10 BATCH`
+- **JSON schema:** `thtDate: "YYYY-MM-DD"` opgeslagen in exports (backward compatible met oude bestanden)
+- **Bestanden:** pallet.html + alle merkdirectories (ecostyle/pallet/, vitalstyle/pallet/, azstyle/pallet/)
+- **Gedeelde code:** Dezelfde `buildGS1128BwipData()` en `buildGS1128HumanReadable()` functies als carton labels
+
 ---
 
 ## Out of Scope

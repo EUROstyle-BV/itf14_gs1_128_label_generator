@@ -125,10 +125,14 @@ Generates **EUROstyle / Vitalstyle outer-carton shipping labels** with:
 
 ### 2. Pallet Labels (`pallet.html`)
 Generates **GS1-128 pallet labels** with:
-- **GS1-128 barcode** — encodes product, quantity, production date, and batch
-- **Paper size:** Always A4 portrait
-- **2×2 data grid:** Content (GTIN-14), Count, PROD (YYMM), Batch
-- **Same save/load functionality** — import/export as JSON
+- **GS1-128 barcode** — encodes product, quantity, THT (best-before), production date, and batch
+- **Paper sizes:** A4 (standard) or A6 (105×148mm) — selected via dropdown
+- **2×2 data grid:** Content (GTIN-14), Count, THT/PROD (dynamic label), Batch
+- **THT support:** Best-before date (AI 15) with dynamic label switching
+  - Shows "THT: DD-MM-YYYY" when best-before date is entered
+  - Shows "PROD (YYMM): YYMMDD" when only production date is entered
+  - THT has priority when both dates are present
+- **Same save/load functionality** — import/export as JSON with backward compatibility
 
 ### Project Location
 
@@ -219,7 +223,8 @@ Simply navigate to the desired brand URL. The application will automatically:
 2. **Fill in the form** (left panel):
    - EAN-13 Code
    - Count (units on pallet)
-   - PROD Date (YYMM format, e.g., 2601 = January 2026)
+   - **THT datum** (best-before date) — optional, shows as "THT:" on label if present
+   - **Productiedatum** (production date) — optional, shows as "PROD (YYMM)" if THT is empty
    - Batch Number
    - **Paper Size:** Choose A4 or A6 (dropdown)
 
@@ -248,14 +253,15 @@ Simply navigate to the desired brand URL. The application will automatically:
 
 ## Barcode Specifications
 
-### GS1-128 (Top Barcode)
+### GS1-128 (Carton & Pallet)
 - **Purpose:** Encodes product information, batch, and date data
-- **AI(02):** GTIN-14 (product case level code)
-- **AI(10):** Batch number
+- **AI(02):** GTIN-14 (product case/pallet level code, PI=0 for unit level)
+- **AI(10):** Batch/lot number (variable-length, last field)
 - **AI(11):** Production date (YYMMDD)
-- **AI(15):** Best-before date (YYMMDD)
-- **AI(37):** Quantity of units in box
-- **FNC1 separators:** Used to delimit AI codes
+- **AI(15):** Best-before/THT date (YYMMDD) — now supported on pallet labels
+- **AI(37):** Quantity of units (variable-length, requires FNC1 separator after)
+- **FNC1 separators:** Used to delimit variable-length AI codes
+- **Order:** AI(02) → AI(37) [^FNC1] → AI(15) → AI(11) → AI(10)
 
 ### ITF-14 (Bottom Barcode)
 - **Purpose:** Identifies the outer shipping carton
