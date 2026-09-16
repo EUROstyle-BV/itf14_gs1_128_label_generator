@@ -253,7 +253,7 @@
       display: none;
     }
 
-    /* A6 mode: 85mm label on 105×148mm page with 10mm margins */
+    /* A6 mode: 80mm label on 100×150mm page with 10mm margins (Zebra 10x15cm) */
     #preview-panel.a6-mode {
       width: 100%;
       height: 100%;
@@ -264,7 +264,7 @@
     }
 
     #preview-panel.a6-mode #label {
-      width: 85mm;
+      width: 80mm;
       min-height: unset;
       padding: 10mm;
       margin-top: 10mm;
@@ -627,7 +627,7 @@
       if (paperSize === 'a6') {
         dynStyle.textContent = `
           @media print {
-            @page { size: 105mm 148mm; margin: 0; }
+            @page { size: 100mm 150mm; margin: 0; }
             #preview-panel {
               width: 100%;
               padding: 0;
@@ -636,7 +636,7 @@
               align-items: flex-start;
             }
             #label {
-              width: 85mm;
+              width: 80mm;
               padding: 10mm;
               box-shadow: none;
               margin: 0;
