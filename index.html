@@ -1175,28 +1175,28 @@
       if (paperSize === 'a6') {
         dynStyle.textContent = `
           @media print {
-            @page { size: 105mm 148mm; margin: 0; }
-            /* Same flex-centering approach as A4 — avoids flex-shrink misplacing barcodes */
+            @page { size: 100mm 150mm; margin: 0; }
+            /* Fit Zebra 10x15cm label size with flex-centering approach */
             #preview-panel {
               display: flex !important;
               justify-content: center !important;
               align-items: flex-start !important;
-              width: 105mm !important;
-              height: 148mm !important;
+              width: 100mm !important;
+              height: 150mm !important;
               padding: 10mm !important;
               background: none !important;
               min-height: unset !important;
               overflow: hidden !important;
             }
-            /* width: 85mm = original intent (10mm margins each side on 105mm page).
+            /* width: 80mm = for Zebra 10x15cm labels (10mm margins each side on 100mm page).
                NO fixed height — lets content flow naturally so SVGs are never squished. */
             #label {
-              width: 85mm !important;
+              width: 80mm !important;
               min-height: unset !important;
               box-shadow: none !important;
               margin: 0 !important;
             }
-            /* Compact layout to fit all content within 128mm (148mm - 2×10mm margin) */
+            /* Compact layout to fit all content within 130mm (150mm - 2×10mm margin) */
             #zone-logo        { padding: 3px 0 !important; min-height: 28px !important; }
             #logo-img         { max-height: 28px !important; }
             #zone-product     { padding: 3px 10px !important; }
