@@ -727,10 +727,20 @@
     Powered by <a href="https://eurostyle.nl" target="_blank">EUROstyle</a>
   </footer>
 
-  <!-- bwip-js CDN: gs1-128 + itf14 with proper bearer bars and FNC1 -->
+  <!-- bwip-js CDN: gs1-128 + itf14 with proper bearer bars and FNC1 support -->
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
 
   <script>
+    // ════════════════════════════════════════════════════════════════════════════════════
+    // ITF-14 / GS1-128 Label Generator — Carton & Pallet Labels
+    // ════════════════════════════════════════════════════════════════════════════════════
+    // Two-column app: left panel (form inputs), right panel (live label preview)
+    // Print support: A4 (centered label) or A6 (Zebra 105×148mm paper)
+    // Barcodes: ITF-14 (carton only, PI=1) + GS1-128 (both modes, PI=0)
+    // Brand routing: URL-based (ecostyle / vitalstyle / azstyle) with SPA fallback
+    // Storage: Save/load label data as JSON with logo (base64) and paper size preferences
+    // ════════════════════════════════════════════════════════════════════════════════════
+
     // ── Brand Configuration ───────────────────────────────────────
     const BRAND_CONFIG = {
       ecostyle: {
@@ -1168,6 +1178,9 @@
     });
 
     // ── Print button ──────────────────────────────────────────────
+    // A4: Standard layout (105×148mm label centered on A4)
+    // A6: Compact layout for Zebra 10×15cm printer (85mm label on 105×148mm page with 10mm margins)
+    // Dynamic CSS injection before print; cleared after via afterprint event
     document.getElementById('print-btn').addEventListener('click', () => {
       const paperSize = document.getElementById('paper-size').value;
       const dynStyle  = document.getElementById('dynamic-print');
@@ -1175,23 +1188,26 @@
       if (paperSize === 'a6') {
         dynStyle.textContent = `
           @media print {
-            @page { size: 100mm 150mm; margin: 0; }
-            /* Fit Zebra 10x15cm label size with flex-centering approach */
+            @page { size: 105mm 148mm; margin: 0; }
+            /* A6: Flex-centered layout ensures quiet zones are never clipped by printer.
+               #preview-panel uses same flexbox approach as A4 (not display:block) */
             #preview-panel {
               display: flex !important;
               justify-content: center !important;
               align-items: flex-start !important;
-              width: 100mm !important;
-              height: 150mm !important;
+              width: 105mm !important;
+              height: 148mm !important;
               padding: 10mm !important;
               background: none !important;
               min-height: unset !important;
               overflow: hidden !important;
             }
-            /* width: 80mm = for Zebra 10x15cm labels (10mm margins each side on 100mm page).
-               NO fixed height — lets content flow naturally so SVGs are never squished. */
+            /* A6 label: width: 85mm (105mm page - 2×10mm margins).
+               CRITICAL: NO fixed height (min-height: unset). With flex-direction:column,
+               fixed height causes flex-shrink to squish zones. SVGs with height:auto don't
+               respond to shrinking — they overflow and displace other content visually. */
             #label {
-              width: 80mm !important;
+              width: 85mm !important;
               min-height: unset !important;
               box-shadow: none !important;
               margin: 0 !important;
@@ -1214,10 +1230,11 @@
           }
         `;
       } else {
-        dynStyle.textContent = ''; // A4: use default rules
+        dynStyle.textContent = ''; // A4: use default @media print rules (already in stylesheet)
       }
 
       window.print();
+      // Clear injected styles after print dialog closes to restore preview
       window.addEventListener('afterprint', () => { dynStyle.textContent = ''; }, { once: true });
     });
 

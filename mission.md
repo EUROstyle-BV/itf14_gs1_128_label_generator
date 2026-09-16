@@ -359,14 +359,15 @@ Dropdown in invoerpaneel. Dynamische `<style id="dynamic-print">` injectie vóó
 - `Productiedatum` en `THT datum` worden niet meer vooringevuld bij het laden van de pagina.
 - De gebruiker vult per batch de juiste datums in — geen risico op het per ongeluk afdrukken van testdatums.
 
-### Stap 11 — A6 print: barcodes verkeerd gepositioneerd en verkeerde breedte ✓ opgelost
+### Stap 11 — A6 print: barcodes verkeerd gepositioneerd en verkeerde breedte ✅ Opgelost & Geverifieerd
 - **Probleem 1:** Bij afdrukken op A6 stonden barcodes verkeerd in het label (vergeleken met A4).
   - *Oorzaak A:* `display: block` op `#preview-panel` — flexbox-centrering verbroken.
   - *Oorzaak B:* `height: 128mm !important` op `#label` (`flex-direction: column` container). Alle zones krimpen via `flex-shrink`. SVG's met `height: auto` reageren niet op verkleining — ze overlopen en verschuiven visueel naar zones eronder.
   - *Oplossing:* `display: flex` op `#preview-panel` (zelfde als A4). `min-height: unset` op `#label` (geen vaste hoogte). Geen `max-height` op SVGs.
 - **Probleem 2:** Na bovenstaande fix was de ITF-14 barcode smaller dan de labelbreedte.
   - *Oorzaak:* Labelbreedte verhoogd van 85mm naar 95mm. De ITF-14 SVG heeft een intrinsieke breedte van ~85mm. Browser-printmodus schaalt SVG's **niet op** boven hun intrinsieke breedte, ook niet met CSS `width: 100%`. De ITF-14 bleef op zijn intrinsieke breedte terwijl het labelkader breder was.
-  - *Oplossing:* Labelbreedte terug naar `85mm` (oorspronkelijk ontwerp: 10mm marges aan beide kanten op 105mm pagina). GS1-128 heeft een bredere intrinsieke SVG en schaalt correct. ✓
+  - *Oplossing:* Labelbreedte terug naar `85mm` (oorspronkelijk ontwerp: 10mm marges aan beide kanten op 105mm pagina). GS1-128 heeft een bredere intrinsieke SVG en schaalt correct.
+- **Verificatie:** A6 labels afgedrukt op Zebra printer; zowel carton (ITF-14 + GS1-128) als pallet (GS1-128 only) labels zijn nu correct geformatteerd en scanbaar. ✅
 
 ### Stap 12 — Pallet Labels (GS1-128 only) ✓
 - **Behofte:** Aparte pallet labels voor pallets (anders dan carton labels).
