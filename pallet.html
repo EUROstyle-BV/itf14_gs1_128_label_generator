@@ -402,7 +402,9 @@
   <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.8.0/dist/bwip-js.min.js"></script>
 
   <script>
-    // Pallet Label Generator — GS1-128 barcode with 2×2 data grid (A4 only)
+    // Pallet Label Generator — GS1-128 barcode with 2×2 data grid (A4/A6)
+    // Features: THT datum (Best-Before Date, AI 15), Production date (AI 11), dynamic PROD/THT label switch
+    // All label data stored/loaded as JSON with backward compatibility for old exports
     // Shared GS1 utilities with carton labels (gs1CheckDigit, buildGTIN14, buildGS1128BwipData)
     // Brand variants: ecostyle, vitalstyle, azstyle via URL routing
     // ── Brand Configuration ──────────────────────────────────────
@@ -462,23 +464,27 @@
       return yy + month + day;
     }
 
+    // Format date for human-readable display on label (THT shows as DD-MM-YYYY)
     function dateToDDMMYYYY(dateStr) {
-      // "2026-01-15" → "15-01-2026" (DD-MM-YYYY format for display)
+      // "2026-01-15" → "15-01-2026" (DD-MM-YYYY format for display on pallet label)
       if (!dateStr || dateStr.length !== 10) return '';
       const [year, month, day] = dateStr.split('-');
       return day + '-' + month + '-' + year;
     }
 
+    // Build GS1-128 data string for bwip-js (with FNC1 separators for variable-length AIs)
+    // AI(15) Best-Before Date is now supported and placed before AI(11) Production Date
     function buildGS1128BwipData(gtin14_pi0, count, thtDate, prodDate, batch) {
-      let data = '^FNC1';
-      data += '02' + gtin14_pi0;
+      let data = '^FNC1';                          // leading FNC1 → identifies as GS1-128
+      data += '02' + gtin14_pi0;                  // AI(02): GTIN-14, fixed 14 digits (PI=0)
       if (count) {
-        data += '37' + count;
-        if (thtDate || prodDate || batch) data += '^FNC1';
+        data += '37' + count;                     // AI(37): variable-length count
+        if (thtDate || prodDate || batch)
+          data += '^FNC1';                        // FNC1 separator after variable AI(37)
       }
-      if (thtDate) data += '15' + dateToYYMMDD(thtDate);
-      if (prodDate) data += '11' + dateToYYMMDD(prodDate);
-      if (batch) data += '10' + batch;
+      if (thtDate) data += '15' + dateToYYMMDD(thtDate);   // AI(15): Best-Before Date YYMMDD
+      if (prodDate) data += '11' + dateToYYMMDD(prodDate);  // AI(11): Production Date YYMMDD
+      if (batch) data += '10' + batch;            // AI(10): Batch/Lot number (variable, last)
       return data;
     }
 
@@ -506,7 +512,9 @@
       document.getElementById('product-name').textContent = product || '—';
       document.getElementById('val-count').textContent = count || '—';
 
-      // PROD/THT: show THT if present, otherwise show PROD
+      // PROD/THT: Dynamic label switching based on which date is present
+      // THT (Best-Before) has priority: if filled, display "THT:" with DD-MM-YYYY format
+      // Otherwise, display "PROD (YYMM)" with YYMMDD format (production date)
       const prodThtLabel = document.getElementById('label-prod-tht');
       if (thtDate) {
         prodThtLabel.textContent = 'THT:';
